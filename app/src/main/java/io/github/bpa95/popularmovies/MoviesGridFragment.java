@@ -17,6 +17,9 @@ public class MoviesGridFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
 
+    public MoviesGridFragment() {
+    }
+
     private Movie[] movies = new Movie[]{
             new Movie(R.drawable.interstellar),
             new Movie(R.drawable.interstellar),
