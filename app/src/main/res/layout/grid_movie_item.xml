@@ -3,5 +3,6 @@
     android:id="@+id/movies_grid_image_view_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scaleType="centerCrop"
     android:contentDescription="@string/movie_poster" />
 
