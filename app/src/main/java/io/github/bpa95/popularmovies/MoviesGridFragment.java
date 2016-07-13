@@ -35,6 +35,7 @@ public class MoviesGridFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
+            intentDetail.putExtra(DetailFragment.EXTRA_MOVIE, mMovieAdapter.getItem(i));
             startActivity(intentDetail);
         }
     };

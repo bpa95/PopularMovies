@@ -27,6 +27,7 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/detail_poster"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/movie_poster"
@@ -41,12 +42,14 @@
                 android:paddingTop="10dp">
 
                 <TextView
+                    android:id="@+id/detail_release_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="10dp"
                     tools:text="Release date:\n2014-11-05" />
 
                 <TextView
+                    android:id="@+id/detail_rating"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:text="Rating:\n8.4/10" />
@@ -54,6 +57,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/detail_overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
