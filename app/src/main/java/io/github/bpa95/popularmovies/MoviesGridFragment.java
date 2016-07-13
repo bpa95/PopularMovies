@@ -11,13 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * A fragment containing the grid view of movies
@@ -29,20 +33,12 @@ public class MoviesGridFragment extends Fragment {
     public MoviesGridFragment() {
     }
 
-    private Movie[] movies = new Movie[]{
-            new Movie(R.drawable.interstellar),
-            new Movie(R.drawable.interstellar),
-            new Movie(R.drawable.interstellar),
-            new Movie(R.drawable.interstellar),
-            new Movie(R.drawable.interstellar)
-    };
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies_grid, container, false);
 
-        mMovieAdapter = new MovieAdapter(getActivity(), Arrays.asList(movies));
+        mMovieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         // Get a reference to the GridView, and attach this adapter to it.
         GridView listView = (GridView) rootView.findViewById(R.id.movies_grid_view);
@@ -53,12 +49,28 @@ public class MoviesGridFragment extends Fragment {
         return rootView;
     }
 
-    private class FetchMoviesTask extends AsyncTask<String, Void, String> {
+    private class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
+        private Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException {
+
+            final String TMDB_RESULTS = "results";
+
+            JSONArray moviesJson = new JSONObject(moviesJsonStr)
+                    .getJSONArray(TMDB_RESULTS);
+
+            int length = moviesJson.length();
+            Movie[] movies = new Movie[length];
+            for (int i = 0; i < length; i++) {
+                movies[i] = new Movie(moviesJson.getJSONObject(i));
+            }
+
+            return movies;
+        }
+
         @Override
-        protected String doInBackground(String... strings) {
+        protected Movie[] doInBackground(String... strings) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -124,7 +136,23 @@ public class MoviesGridFragment extends Fragment {
                 }
             }
 
-            return moviesJsonStr;
+            try {
+                return getMovieDataFromJson(moviesJsonStr);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+
+            // This will only happen if there was an error getting or parsing the json
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Movie[] movies) {
+            if (movies != null) {
+                mMovieAdapter.clear();
+                mMovieAdapter.addAll(movies);
+            }
         }
     }
 }

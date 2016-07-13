@@ -51,7 +51,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         }
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.movies_grid_image_view_item);
-        imageView.setImageResource(movie.image);
+        imageView.setImageResource(R.drawable.interstellar);
 
         return convertView;
     }
