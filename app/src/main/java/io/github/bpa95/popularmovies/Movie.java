@@ -1,11 +1,13 @@
 package io.github.bpa95.popularmovies;
 
+import android.net.Uri;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Movie {
     int id;
-    String posterPath;
+    Uri posterPath;
     String title;
     String releaseDate;
     double voteAverage;
@@ -21,10 +23,18 @@ public class Movie {
         final String TMDB_OVERVIEW = "overview";
 
         id = jsonMovie.getInt(TMDB_MOVIE_ID);
-        posterPath = jsonMovie.getString(TMDB_POSTER_PATH);
         title = jsonMovie.getString(TMDB_TITLE);
         releaseDate = jsonMovie.getString(TMDB_RELEASE_DATE);
         voteAverage = jsonMovie.getDouble(TMDB_VOTE_AVERAGE);
         overview = jsonMovie.getString(TMDB_OVERVIEW);
+
+        final String BASE_URL = "http://image.tmdb.org/t/p/";
+        final String IMAGE_SIZE = "w185";
+        final String IMAGE_PATH = jsonMovie.getString(TMDB_POSTER_PATH);
+
+        posterPath = Uri.parse(BASE_URL).buildUpon()
+                .appendEncodedPath(IMAGE_SIZE)
+                .appendEncodedPath(IMAGE_PATH)
+                .build();
     }
 }
