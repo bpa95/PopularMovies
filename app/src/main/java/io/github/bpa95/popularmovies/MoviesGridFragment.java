@@ -44,9 +44,17 @@ public class MoviesGridFragment extends Fragment {
         GridView listView = (GridView) rootView.findViewById(R.id.movies_grid_view);
         listView.setAdapter(mMovieAdapter);
 
-        new FetchMoviesTask().execute();
-
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateGrid();
+    }
+
+    private void updateGrid() {
+        new FetchMoviesTask().execute();
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
