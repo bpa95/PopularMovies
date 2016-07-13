@@ -1,6 +1,7 @@
 package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -29,6 +31,13 @@ import java.util.ArrayList;
 public class MoviesGridFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
+    private AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
+            startActivity(intentDetail);
+        }
+    };
 
     public MoviesGridFragment() {
     }
@@ -41,8 +50,10 @@ public class MoviesGridFragment extends Fragment {
         mMovieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         // Get a reference to the GridView, and attach this adapter to it.
-        GridView listView = (GridView) rootView.findViewById(R.id.movies_grid_view);
-        listView.setAdapter(mMovieAdapter);
+        GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
+        gridView.setAdapter(mMovieAdapter);
+
+        gridView.setOnItemClickListener(listener);
 
         return rootView;
     }
