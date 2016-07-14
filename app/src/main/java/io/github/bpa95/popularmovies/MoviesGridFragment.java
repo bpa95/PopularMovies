@@ -2,9 +2,11 @@ package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,7 +68,10 @@ public class MoviesGridFragment extends Fragment {
     }
 
     private void updateGrid() {
-        new FetchMoviesTask().execute();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort_order = prefs.getString(getString(R.string.pref_sortOrder_key),
+                getString(R.string.pref_sortOrder_popular_value));
+        new FetchMoviesTask().execute(sort_order);
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
@@ -98,15 +103,20 @@ public class MoviesGridFragment extends Fragment {
             // Will contain the raw JSON response as a string
             String moviesJsonStr = null;
 
+            final String SORT_ORDER;
+            if (strings != null && strings.length > 0) {
+                SORT_ORDER = strings[0];
+            } else {
+                return null;
+            }
+
             try {
                 // Construct the URL for the Movie Database query
                 final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
-                final String POPULAR_PATH = "movie/popular";
-                final String TOP_RATED_PATH = "movie/top_rated";
                 final String API_KEY_PARAM = "api_key";
 
                 Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                        .appendEncodedPath(POPULAR_PATH)
+                        .appendEncodedPath(SORT_ORDER)
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
                         .build();
 
