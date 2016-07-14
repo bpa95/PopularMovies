@@ -1,8 +1,11 @@
 package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,6 +81,8 @@ public class MoviesGridFragment extends Fragment {
     private class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
+        private String errorMessage;
+
 
         private Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException {
 
@@ -94,6 +100,15 @@ public class MoviesGridFragment extends Fragment {
             return movies;
         }
 
+        // uses solution from stackoverflow
+        // http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-timeouts
+        public boolean isOnline() {
+            ConnectivityManager cm =
+                    (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            return netInfo != null && netInfo.isConnectedOrConnecting();
+        }
+
         @Override
         protected Movie[] doInBackground(String... strings) {
 
@@ -107,6 +122,8 @@ public class MoviesGridFragment extends Fragment {
             if (strings != null && strings.length > 0) {
                 SORT_ORDER = strings[0];
             } else {
+                errorMessage = "Should never happen";
+                Log.e(LOG_TAG, "strings is bad");
                 return null;
             }
 
@@ -124,6 +141,11 @@ public class MoviesGridFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
+                if (!isOnline()) {
+                    errorMessage = "Check internet connection";
+                    return null;
+                }
+
                 // Create the request to TheMovieDatabase, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -134,6 +156,7 @@ public class MoviesGridFragment extends Fragment {
                 StringBuilder buffer = new StringBuilder();
                 if (inputStream == null) {
                     // Nothing to do.
+                    errorMessage = "Error while fetching data";
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -148,11 +171,14 @@ public class MoviesGridFragment extends Fragment {
 
                 if (buffer.length() == 0) {
                     // Stream was empty.  No point in parsing.
+                    errorMessage = "Error while fetching data";
                     return null;
                 }
                 moviesJsonStr = buffer.toString();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
+                errorMessage = "Error while fetching data";
+                return null;
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -170,11 +196,9 @@ public class MoviesGridFragment extends Fragment {
                 return getMovieDataFromJson(moviesJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
+                errorMessage = "Error while fetching data";
+                return null;
             }
-
-            // This will only happen if there was an error getting or parsing the json
-            return null;
         }
 
         @Override
@@ -182,6 +206,8 @@ public class MoviesGridFragment extends Fragment {
             if (movies != null) {
                 mMovieAdapter.clear();
                 mMovieAdapter.addAll(movies);
+            } else {
+                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         }
     }
