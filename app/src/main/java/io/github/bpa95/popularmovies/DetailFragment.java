@@ -21,12 +21,13 @@ public class DetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        Movie movie = (Movie) getActivity().getIntent().getParcelableExtra(EXTRA_MOVIE);
+        Movie movie = getActivity().getIntent().getParcelableExtra(EXTRA_MOVIE);
 
         ((TextView) rootView.findViewById(R.id.detail_title)).setText(movie.title);
-        ((TextView) rootView.findViewById(R.id.detail_release_date)).setText(movie.releaseDate);
+        ((TextView) rootView.findViewById(R.id.detail_release_date))
+                .setText(String.format(Locale.getDefault(), "Release date:%n%s", movie.releaseDate));
         ((TextView) rootView.findViewById(R.id.detail_rating))
-                .setText(String.format(Locale.getDefault(), "%1.1f/10", movie.voteAverage));
+                .setText(String.format(Locale.getDefault(), "Rating:%n%1.1f/10", movie.voteAverage));
         ((TextView) rootView.findViewById(R.id.detail_overview)).setText(movie.overview);
 
         ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_poster);

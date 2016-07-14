@@ -28,11 +28,12 @@
 
             <ImageView
                 android:id="@+id/detail_poster"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/movie_poster"
                 android:padding="10dp"
-                android:src="@drawable/interstellar" />
+                tools:src="@drawable/interstellar" />
 
             <LinearLayout
                 android:layout_width="0dp"
