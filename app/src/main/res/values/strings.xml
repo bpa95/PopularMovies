@@ -9,6 +9,7 @@
     <string name="pref_sortOrder_popular_value">movie/popular</string>
     <string name="pref_sortOrder_topRated_entry">Highest rated first</string>
     <string name="pref_sortOrder_topRated_value">movie/top_rated</string>
+    <string name="pref_sortOrder_key">pref_sortOrder</string>
 
     <string-array name="pref_sortOrder_entries">
         <item>@string/pref_sortOrder_popular_entry</item>

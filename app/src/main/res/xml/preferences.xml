@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <ListPreference
-        android:key="pref_sortType"
+        android:key="@string/pref_sortOrder_key"
         android:title="@string/pref_sortOrder_title"
         android:dialogTitle="@string/pref_sortOrder_dialog"
         android:entries="@array/pref_sortOrder_entries"
