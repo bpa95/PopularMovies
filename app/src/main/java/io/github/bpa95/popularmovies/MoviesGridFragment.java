@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -84,7 +86,10 @@ public class MoviesGridFragment extends Fragment {
         private String errorMessage;
 
 
-        private Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException {
+        private Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException, IOException {
+            if (moviesJsonStr == null || moviesJsonStr.isEmpty()) {
+                throw new IOException("Empty json");
+            }
 
             final String TMDB_RESULTS = "results";
 
@@ -109,11 +114,55 @@ public class MoviesGridFragment extends Fragment {
             return netInfo != null && netInfo.isConnectedOrConnecting();
         }
 
+        private String getJsonString(InputStream inputStream) throws IOException {
+            if (inputStream == null) {
+                return null;
+            }
+            BufferedReader reader = null;
+
+            try {
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                StringBuilder buffer = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line).append('\n');
+                }
+
+                return buffer.toString();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+        }
+
+        @NonNull
+        private URL constructUrl(String SORT_ORDER) throws MalformedURLException {
+            final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
+            final String API_KEY_PARAM = "api_key";
+
+            Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                    .appendEncodedPath(SORT_ORDER)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
+                    .build();
+
+            Log.v(LOG_TAG, builtUri.toString());
+
+            return new URL(builtUri.toString());
+        }
+
         @Override
         protected Movie[] doInBackground(String... strings) {
 
             HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string
             String moviesJsonStr = null;
@@ -129,17 +178,7 @@ public class MoviesGridFragment extends Fragment {
 
             try {
                 // Construct the URL for the Movie Database query
-                final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
-                final String API_KEY_PARAM = "api_key";
-
-                Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                        .appendEncodedPath(SORT_ORDER)
-                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
-                        .build();
-
-                Log.v(LOG_TAG, builtUri.toString());
-
-                URL url = new URL(builtUri.toString());
+                URL url = constructUrl(SORT_ORDER);
 
                 if (!isOnline()) {
                     errorMessage = "Check internet connection";
@@ -152,30 +191,8 @@ public class MoviesGridFragment extends Fragment {
                 urlConnection.connect();
 
                 // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuilder buffer = new StringBuilder();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    errorMessage = "Error while fetching data";
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line).append('\n');
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    errorMessage = "Error while fetching data";
-                    return null;
-                }
-                moviesJsonStr = buffer.toString();
-            } catch (IOException e) {
+                return getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
+            } catch (IOException | JSONException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 errorMessage = "Error while fetching data";
                 return null;
@@ -183,21 +200,6 @@ public class MoviesGridFragment extends Fragment {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-
-            try {
-                return getMovieDataFromJson(moviesJsonStr);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                errorMessage = "Error while fetching data";
-                return null;
             }
         }
 
