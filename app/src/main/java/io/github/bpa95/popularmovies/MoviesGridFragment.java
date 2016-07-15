@@ -173,20 +173,20 @@ public class MoviesGridFragment extends Fragment {
 
 
         /**
-         * Constructs url from which the json object with movie data can be fetched.
-         * Movies will be in order specified by parameter.
+         * Constructs the URL for the Movie Database query, which contains the json object
+         * with movie data can be fetched. Movies will be in order specified by parameter.
          *
-         * @param sortOrder part of path which specify sort order
+         * @param SORT_ORDER part of path which specify sort order
          * @return correct url to The Movie Database from which the json object with movie data can be fetched
          * @throws MalformedURLException should never happen
          */
         @NonNull
-        private URL constructUrl(final String sortOrder) throws MalformedURLException {
+        private URL constructUrl(final String SORT_ORDER) throws MalformedURLException {
             final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
             final String API_KEY_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                    .appendEncodedPath(sortOrder)
+                    .appendEncodedPath(SORT_ORDER)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
                     .build();
 
@@ -199,9 +199,6 @@ public class MoviesGridFragment extends Fragment {
         protected Movie[] doInBackground(String... strings) {
 
             HttpURLConnection urlConnection = null;
-
-            // Will contain the raw JSON response as a string
-            String moviesJsonStr = null;
 
             final String SORT_ORDER;
             if (strings != null && strings.length > 0) {
