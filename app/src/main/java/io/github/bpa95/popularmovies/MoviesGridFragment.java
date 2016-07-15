@@ -207,7 +207,7 @@ public class MoviesGridFragment extends Fragment {
             if (strings != null && strings.length > 0) {
                 SORT_ORDER = strings[0];
             } else {
-                mErrorMessage = "Should never happen";
+                mErrorMessage = getActivity().getString(R.string.never_happens);
                 Log.e(LOG_TAG, "strings is bad");
                 return null;
             }
@@ -217,7 +217,7 @@ public class MoviesGridFragment extends Fragment {
                 URL url = constructUrl(SORT_ORDER);
 
                 if (!isOnline()) {
-                    mErrorMessage = "Check internet connection";
+                    mErrorMessage = getActivity().getString(R.string.check_connection);
                     return null;
                 }
 
@@ -230,7 +230,7 @@ public class MoviesGridFragment extends Fragment {
                 return getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
             } catch (IOException | JSONException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                mErrorMessage = "Error while fetching data";
+                mErrorMessage = getActivity().getString(R.string.error_fetching);
                 return null;
             } finally {
                 if (urlConnection != null) {

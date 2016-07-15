@@ -10,6 +10,9 @@
     <string name="pref_sortOrder_topRated_entry">Highest rated first</string>
     <string name="pref_sortOrder_topRated_value">movie/top_rated</string>
     <string name="pref_sortOrder_key">pref_sortOrder</string>
+    <string name="error_fetching">Error while fetching data</string>
+    <string name="check_connection">Check internet connection</string>
+    <string name="never_happens">Should never happen</string>
 
     <string-array name="pref_sortOrder_entries">
         <item>@string/pref_sortOrder_popular_entry</item>
