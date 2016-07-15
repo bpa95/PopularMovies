@@ -34,12 +34,12 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * A fragment containing the grid view of movies
+ * A fragment containing the grid view of movies.
  */
 public class MoviesGridFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
-    private AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
@@ -62,7 +62,7 @@ public class MoviesGridFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
         gridView.setAdapter(mMovieAdapter);
 
-        gridView.setOnItemClickListener(listener);
+        gridView.setOnItemClickListener(mListener);
 
         return rootView;
     }
@@ -73,6 +73,9 @@ public class MoviesGridFragment extends Fragment {
         updateGrid();
     }
 
+    /**
+     * Fills grid view with posters of movies fetched from server.
+     */
     private void updateGrid() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort_order = prefs.getString(getString(R.string.pref_sortOrder_key),
@@ -80,12 +83,23 @@ public class MoviesGridFragment extends Fragment {
         new FetchMoviesTask().execute(sort_order);
     }
 
+    /**
+     * Fetches from server the json with movies, parses it, and fills the adapter with Movies objects.
+     */
     private class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-        private String errorMessage;
+        private String mErrorMessage;
 
 
+        /**
+         * Extracts movie data from json string and returns array of movies with this data.
+         *
+         * @param moviesJsonStr json string to parse
+         * @return array of movies
+         * @throws JSONException if passed string is not appropriate json string
+         * @throws IOException   if passed string is null or empty
+         */
         private Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException, IOException {
             if (moviesJsonStr == null || moviesJsonStr.isEmpty()) {
                 throw new IOException("Empty json");
@@ -105,6 +119,11 @@ public class MoviesGridFragment extends Fragment {
             return movies;
         }
 
+        /**
+         * Checks internet connection.
+         *
+         * @return true if there is internet connection, false - otherwise
+         */
         // uses solution from stackoverflow
         // http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-timeouts
         public boolean isOnline() {
@@ -114,6 +133,14 @@ public class MoviesGridFragment extends Fragment {
             return netInfo != null && netInfo.isConnectedOrConnecting();
         }
 
+        /**
+         * Reads bytes from given input stream into string. It is assumed that
+         * input stream contains correct json object.
+         *
+         * @param inputStream stream with correct json object
+         * @return json string read from given stream
+         * @throws IOException in case of errors in input stream
+         */
         private String getJsonString(InputStream inputStream) throws IOException {
             if (inputStream == null) {
                 return null;
@@ -144,13 +171,22 @@ public class MoviesGridFragment extends Fragment {
             }
         }
 
+
+        /**
+         * Constructs url from which the json object with movie data can be fetched.
+         * Movies will be in order specified by parameter.
+         *
+         * @param sortOrder part of path which specify sort order
+         * @return correct url to The Movie Database from which the json object with movie data can be fetched
+         * @throws MalformedURLException should never happen
+         */
         @NonNull
-        private URL constructUrl(String SORT_ORDER) throws MalformedURLException {
+        private URL constructUrl(final String sortOrder) throws MalformedURLException {
             final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
             final String API_KEY_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                    .appendEncodedPath(SORT_ORDER)
+                    .appendEncodedPath(sortOrder)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
                     .build();
 
@@ -171,7 +207,7 @@ public class MoviesGridFragment extends Fragment {
             if (strings != null && strings.length > 0) {
                 SORT_ORDER = strings[0];
             } else {
-                errorMessage = "Should never happen";
+                mErrorMessage = "Should never happen";
                 Log.e(LOG_TAG, "strings is bad");
                 return null;
             }
@@ -181,7 +217,7 @@ public class MoviesGridFragment extends Fragment {
                 URL url = constructUrl(SORT_ORDER);
 
                 if (!isOnline()) {
-                    errorMessage = "Check internet connection";
+                    mErrorMessage = "Check internet connection";
                     return null;
                 }
 
@@ -194,7 +230,7 @@ public class MoviesGridFragment extends Fragment {
                 return getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
             } catch (IOException | JSONException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                errorMessage = "Error while fetching data";
+                mErrorMessage = "Error while fetching data";
                 return null;
             } finally {
                 if (urlConnection != null) {
@@ -209,7 +245,7 @@ public class MoviesGridFragment extends Fragment {
                 mMovieAdapter.clear();
                 mMovieAdapter.addAll(movies);
             } else {
-                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), mErrorMessage, Toast.LENGTH_SHORT).show();
             }
         }
     }
