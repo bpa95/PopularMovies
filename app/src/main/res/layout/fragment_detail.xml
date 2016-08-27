@@ -13,11 +13,11 @@
             android:id="@+id/detail_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#2E3D49"
+            android:background="@color/detailTextBackground"
             android:gravity="center"
             android:paddingBottom="15dp"
             android:paddingTop="15dp"
-            android:textColor="#fff"
+            android:textColor="@color/detailText"
             android:textSize="40sp"
             tools:text="Title" />
 
