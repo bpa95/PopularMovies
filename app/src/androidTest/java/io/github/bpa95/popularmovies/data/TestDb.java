@@ -120,6 +120,36 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testMovieTable() {
+        insertLocation();
+    }
+
+    private static ContentValues createFakeTrailerValues(long rowId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TrailerEntry.COLUMN_MOVIE_ID, rowId);
+        cv.put(TrailerEntry.COLUMN_TRAILER_PATH, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        return cv;
+    }
+
+    public void testTrailerTable() {
+        long rowMovieId = insertLocation();
+        SQLiteDatabase db = new MovieDbHelper(this.mContext).getWritableDatabase();
+        ContentValues cv = createFakeTrailerValues(rowMovieId);
+        long rowTrailerId = db.insert(TrailerEntry.TABLE_NAME, null, cv);
+        assertTrue(rowTrailerId != -1);
+        Cursor c = db.query(
+                TrailerEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        validateCursor("", c, cv);
+        db.close();
+    }
+
+    public long insertLocation() {
         SQLiteDatabase db = new MovieDbHelper(this.mContext).getWritableDatabase();
         ContentValues cv = createFakeMovieValues();
         long rowId = db.insert(MovieEntry.TABLE_NAME, null, cv);
@@ -134,48 +164,6 @@ public class TestDb extends AndroidTestCase {
         );
         validateCursor("", c, cv);
         db.close();
-    }
-
-    /*
-        Students:  Here is where you will build code to test that we can insert and query the
-        database.  We've done a lot of work for you.  You'll want to look in TestUtilities
-        where you can use the "createWeatherValues" function.  You can
-        also make use of the validateCurrentRecord function from within TestUtilities.
-     */
-    public void testTrailerTable() {
-        // First insert the location, and then use the locationRowId to insert
-        // the weather. Make sure to cover as many failure cases as you can.
-
-        // Instead of rewriting all of the code we've already written in testMovieTable
-        // we can move this code to insertLocation and then call insertLocation from both
-        // tests. Why move it? We need the code to return the ID of the inserted location
-        // and our testMovieTable can only return void because it's a test.
-
-        // First step: Get reference to writable database
-
-        // Create ContentValues of what you want to insert
-        // (you can use the createWeatherValues TestUtilities function if you wish)
-
-        // Insert ContentValues into database and get a row ID back
-
-        // Query the database and receive a Cursor back
-
-        // Move the cursor to a valid database row
-
-        // Validate data in resulting Cursor with the original ContentValues
-        // (you can use the validateCurrentRecord function in TestUtilities to validate the
-        // query if you like)
-
-        // Finally, close the cursor and database
-    }
-
-
-    /*
-        Students: This is a helper method for the testTrailerTable quiz. You can move your
-        code from testMovieTable to here so that you can call this code from both
-        testTrailerTable and testMovieTable.
-     */
-    public long insertLocation() {
-        return -1L;
+        return rowId;
     }
 }
