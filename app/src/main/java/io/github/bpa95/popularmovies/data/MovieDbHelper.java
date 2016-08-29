@@ -36,7 +36,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 TrailerEntry.COLUMN_TRAILER_PATH + " TEXT NOT NULL, " +
 
-                " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ")` REFERENCES " +
+                " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +
                 " );";
 

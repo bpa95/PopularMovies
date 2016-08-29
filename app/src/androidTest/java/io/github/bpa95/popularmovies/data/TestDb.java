@@ -1,10 +1,16 @@
 package io.github.bpa95.popularmovies.data;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 
 public class TestDb extends AndroidTestCase {
 
@@ -28,8 +34,8 @@ public class TestDb extends AndroidTestCase {
         // Note that there will be another table in the DB that stores the
         // Android metadata (db version information)
         final HashSet<String> tableNameHashSet = new HashSet<String>();
-        tableNameHashSet.add(MoviesContract.MovieEntry.TABLE_NAME);
-        tableNameHashSet.add(MoviesContract.TrailerEntry.TABLE_NAME);
+        tableNameHashSet.add(MovieEntry.TABLE_NAME);
+        tableNameHashSet.add(TrailerEntry.TABLE_NAME);
 
         deleteTheDatabase();
         SQLiteDatabase db = new MovieDbHelper(
@@ -53,7 +59,7 @@ public class TestDb extends AndroidTestCase {
         c.close();
 
         // now, do our tables contain the correct columns?
-        c = db.rawQuery("PRAGMA table_info(" + MoviesContract.MovieEntry.TABLE_NAME + ")",
+        c = db.rawQuery("PRAGMA table_info(" + MovieEntry.TABLE_NAME + ")",
                 null);
 
         assertTrue("Error: This means that we were unable to query the database for table information.",
@@ -61,13 +67,13 @@ public class TestDb extends AndroidTestCase {
 
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> locationColumnHashSet = new HashSet<String>();
-        locationColumnHashSet.add(MoviesContract.MovieEntry._ID);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_MOVIE_ID);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_POSTER_PATH);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_TITLE);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_RELEASE_DATE);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_VOTE_AVERAGE);
-        locationColumnHashSet.add(MoviesContract.MovieEntry.COLUMN_OVERVIEW);
+        locationColumnHashSet.add(MovieEntry._ID);
+        locationColumnHashSet.add(MovieEntry.COLUMN_MOVIE_ID);
+        locationColumnHashSet.add(MovieEntry.COLUMN_POSTER_PATH);
+        locationColumnHashSet.add(MovieEntry.COLUMN_TITLE);
+        locationColumnHashSet.add(MovieEntry.COLUMN_RELEASE_DATE);
+        locationColumnHashSet.add(MovieEntry.COLUMN_VOTE_AVERAGE);
+        locationColumnHashSet.add(MovieEntry.COLUMN_OVERVIEW);
 
 
         int columnNameIndex = c.getColumnIndex("name");
@@ -83,30 +89,51 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
-    /*
-        Students:  Here is where you will build code to test that we can insert and query the
-        location database.  We've done a lot of work for you.  You'll want to look in TestUtilities
-        where you can uncomment out the "createNorthPoleLocationValues" function.  You can
-        also make use of the ValidateCurrentRecord function from within TestUtilities.
-    */
-    public void testLocationTable() {
-        // First step: Get reference to writable database
+    private static ContentValues createFakeMovieValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(MovieEntry.COLUMN_MOVIE_ID, 123);
+        cv.put(MovieEntry.COLUMN_POSTER_PATH, "https://bfox.files.wordpress.com/2014/11/interstellar-movie.jpg");
+        cv.put(MovieEntry.COLUMN_TITLE, "Interstellar");
+        cv.put(MovieEntry.COLUMN_RELEASE_DATE, 1414213562);
+        cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 9.3);
+        cv.put(MovieEntry.COLUMN_OVERVIEW, "Awesome movie");
+        return cv;
+    }
 
-        // Create ContentValues of what you want to insert
-        // (you can use the createNorthPoleLocationValues if you wish)
+    static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
+        assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
+        validateCurrentRecord(error, valueCursor, expectedValues);
+        valueCursor.close();
+    }
 
-        // Insert ContentValues into database and get a row ID back
+    static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
+        Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
+        for (Map.Entry<String, Object> entry : valueSet) {
+            String columnName = entry.getKey();
+            int idx = valueCursor.getColumnIndex(columnName);
+            assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
+            String expectedValue = entry.getValue().toString();
+            assertEquals("Value '" + entry.getValue().toString() +
+                    "' did not match the expected value '" +
+                    expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+        }
+    }
 
-        // Query the database and receive a Cursor back
-
-        // Move the cursor to a valid database row
-
-        // Validate data in resulting Cursor with the original ContentValues
-        // (you can use the validateCurrentRecord function in TestUtilities to validate the
-        // query if you like)
-
-        // Finally, close the cursor and database
-
+    public void testMovieTable() {
+        SQLiteDatabase db = new MovieDbHelper(this.mContext).getWritableDatabase();
+        ContentValues cv = createFakeMovieValues();
+        long rowId = db.insert(MovieEntry.TABLE_NAME, null, cv);
+        Cursor c = db.query(
+                MovieEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        validateCursor("", c, cv);
+        db.close();
     }
 
     /*
@@ -115,14 +142,14 @@ public class TestDb extends AndroidTestCase {
         where you can use the "createWeatherValues" function.  You can
         also make use of the validateCurrentRecord function from within TestUtilities.
      */
-    public void testWeatherTable() {
+    public void testTrailerTable() {
         // First insert the location, and then use the locationRowId to insert
         // the weather. Make sure to cover as many failure cases as you can.
 
-        // Instead of rewriting all of the code we've already written in testLocationTable
+        // Instead of rewriting all of the code we've already written in testMovieTable
         // we can move this code to insertLocation and then call insertLocation from both
         // tests. Why move it? We need the code to return the ID of the inserted location
-        // and our testLocationTable can only return void because it's a test.
+        // and our testMovieTable can only return void because it's a test.
 
         // First step: Get reference to writable database
 
@@ -144,9 +171,9 @@ public class TestDb extends AndroidTestCase {
 
 
     /*
-        Students: This is a helper method for the testWeatherTable quiz. You can move your
-        code from testLocationTable to here so that you can call this code from both
-        testWeatherTable and testLocationTable.
+        Students: This is a helper method for the testTrailerTable quiz. You can move your
+        code from testMovieTable to here so that you can call this code from both
+        testTrailerTable and testMovieTable.
      */
     public long insertLocation() {
         return -1L;
