@@ -38,5 +38,4 @@ public class TestMovieContract extends AndroidTestCase {
                 MoviesContract.TrailerEntry.getMovieIdFromUri(uri), TEST_MOVIE_ID);
     }
 
-
 }
