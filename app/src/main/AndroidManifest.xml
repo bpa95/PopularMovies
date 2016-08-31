@@ -24,6 +24,10 @@
         <activity android:name=".SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".MainActivity"/>
+
+        <provider
+            android:authorities="io.github.bpa95.popularmovies"
+            android:name=".data.MovieProvider"/>
     </application>
 
 </manifest>
