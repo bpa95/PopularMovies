@@ -14,7 +14,7 @@ public class MovieProviderTest extends AndroidTestCase {
     private static final Uri TEST_TRAILER = MoviesContract.TrailerEntry.CONTENT_URI;
     private static final Uri TEST_TRAILER_BY_MOVIE = MoviesContract.TrailerEntry.buildTrailersByMovieUri(TEST_MOVIE_ID);
 
-    public void testBuildUriMatcher() throws Exception {
+    public void testBuildUriMatcher() {
         UriMatcher matcher = MovieProvider.buildUriMatcher();
 
         assertEquals("Error: The MOVIE URI was matched incorrectly.",
@@ -26,5 +26,11 @@ public class MovieProviderTest extends AndroidTestCase {
         assertEquals("Error: The MOVIE SORTED URI was matched incorrectly.",
                 matcher.match(TEST_TRAILER_BY_MOVIE), MovieProvider.TRAILERS_BY_MOVIE);
 
+    }
+
+    public void testGetType() {
+        String type = mContext.getContentResolver().getType(MoviesContract.MovieEntry.CONTENT_URI);
+        assertEquals("Error: the MovieEntry CONTENT_URI shoud return MovieEntry.CONTENT_TYPE",
+                type, MoviesContract.MovieEntry.CONTENT_TYPE);
     }
 }
