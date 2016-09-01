@@ -68,51 +68,6 @@ public class MoviesContract {
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-
-        public static final int SORT_BY_DEFAULT = 0;
-        public static final int SORT_BY_POPULARITY = 1;
-        public static final int SORT_BY_TOP_RATED = 2;
-
-        /**
-         * Builds content uri with sort_by query parameter
-         *
-         * @param sortBy one of MovieEntry SORT_BY constants
-         * @return content uri with appended query parameter if sortBy is one of SORT_BY constants,
-         * just content uri - otherwise
-         */
-        public static Uri buildMovieSortedUri(int sortBy) {
-            switch (sortBy) {
-                case SORT_BY_DEFAULT:
-                case SORT_BY_POPULARITY:
-                case SORT_BY_TOP_RATED:
-                    return CONTENT_URI.buildUpon().appendQueryParameter(PARAM_SORT_BY, Integer.toString(sortBy)).build();
-                default:
-                    return CONTENT_URI;
-            }
-        }
-
-        /**
-         * Extracts sort_by query parameter from uri
-         *
-         * @param uri given uri
-         * @return query parameter if it is one of SORT_BY constants,
-         * SORT_BY_DEFAULT - otherwise
-         */
-        public static int getSortByFromUri(Uri uri) {
-            String sortBy = uri.getQueryParameter(PARAM_SORT_BY);
-            if (sortBy != null && sortBy.length() > 0) {
-                int sortByInt = Integer.parseInt(sortBy);
-                switch (sortByInt) {
-                    case SORT_BY_POPULARITY:
-                    case SORT_BY_TOP_RATED:
-                        return sortByInt;
-                    default:
-                        return SORT_BY_DEFAULT;
-                }
-            } else {
-                return SORT_BY_DEFAULT;
-            }
-        }
     }
 
     public static final class TrailerEntry implements BaseColumns {
