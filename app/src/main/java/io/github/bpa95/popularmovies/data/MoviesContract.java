@@ -68,6 +68,10 @@ public class MoviesContract {
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        public static Uri buildMovieFavorite() {
+            return CONTENT_URI.buildUpon().appendPath(COLUMN_FAVORITE).build();
+        }
     }
 
     public static final class TrailerEntry implements BaseColumns {
@@ -94,7 +98,7 @@ public class MoviesContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static Uri buildTrailersByMovieUri(int movieId) {
+        public static Uri buildTrailersByMovieIdUri(int movieId) {
             return CONTENT_URI.buildUpon().appendPath(Integer.toString(movieId)).build();
         }
 

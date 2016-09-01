@@ -9,14 +9,17 @@ public class MovieProviderTest extends AndroidTestCase {
     private static final int TEST_MOVIE_ID = 123;
 
     private static final Uri TEST_MOVIE = MoviesContract.MovieEntry.CONTENT_URI;
+    private static final Uri TEST_MOVIE_FAVORITE = MoviesContract.MovieEntry.buildMovieFavorite();
     private static final Uri TEST_TRAILER = MoviesContract.TrailerEntry.CONTENT_URI;
-    private static final Uri TEST_TRAILER_BY_MOVIE = MoviesContract.TrailerEntry.buildTrailersByMovieUri(TEST_MOVIE_ID);
+    private static final Uri TEST_TRAILER_BY_MOVIE = MoviesContract.TrailerEntry.buildTrailersByMovieIdUri(TEST_MOVIE_ID);
 
     public void testBuildUriMatcher() {
         UriMatcher matcher = MovieProvider.buildUriMatcher();
 
         assertEquals("Error: The MOVIE URI was matched incorrectly.",
                 matcher.match(TEST_MOVIE), MovieProvider.MOVIE);
+        assertEquals("Error: The MOVIE FAVORITE URI was matched incorrectly.",
+                matcher.match(TEST_MOVIE_FAVORITE), MovieProvider.MOVIE_FAVORITE);
         assertEquals("Error: The TRAILER URI was matched incorrectly.",
                 matcher.match(TEST_TRAILER), MovieProvider.TRAILER);
         assertEquals("Error: The MOVIE SORTED URI was matched incorrectly.",
