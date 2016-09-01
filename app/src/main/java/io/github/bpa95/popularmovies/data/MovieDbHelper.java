@@ -9,7 +9,7 @@ import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 public class MovieDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -26,8 +26,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL," +
-                MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, " +
-                MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
+                MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL,  " +
+                MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL,  " +
+                MovieEntry.COLUMN_FAVORITE + " BOOLEAN NOT NULL, " +
 
                 " UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
 

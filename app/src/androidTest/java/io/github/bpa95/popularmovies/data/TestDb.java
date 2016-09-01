@@ -95,8 +95,10 @@ public class TestDb extends AndroidTestCase {
         cv.put(MovieEntry.COLUMN_POSTER_PATH, "https://bfox.files.wordpress.com/2014/11/interstellar-movie.jpg");
         cv.put(MovieEntry.COLUMN_TITLE, "Interstellar");
         cv.put(MovieEntry.COLUMN_RELEASE_DATE, 1414213562);
+        cv.put(MovieEntry.COLUMN_POPULARITY, 9.9); // TODO check 10.0
         cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 9.3);
         cv.put(MovieEntry.COLUMN_OVERVIEW, "Awesome movie");
+        cv.put(MovieEntry.COLUMN_FAVORITE, 1);
         return cv;
     }
 

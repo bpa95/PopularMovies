@@ -38,10 +38,14 @@ public class MoviesContract {
         public static final String COLUMN_TITLE = "title";
         /** Movies release date, stored as long in milliseconds since the epoch */
         public static final String COLUMN_RELEASE_DATE = "release_date";
+        /** Movies popularity */
+        public static final String COLUMN_POPULARITY = "popularity";
         /** Movies rating */
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         /** Synopsis of the movie */
         public static final String COLUMN_OVERVIEW = "overview";
+        /** Boolean column, true if movie is marked as favorite, false - otherwise */
+        public static final String COLUMN_FAVORITE = "favorite";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

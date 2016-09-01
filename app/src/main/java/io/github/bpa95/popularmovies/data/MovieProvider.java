@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
+
 public class MovieProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -38,8 +41,39 @@ public class MovieProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] strings, String s, String[] strings1, String s1) {
-        return null;
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Cursor retCursor = null;
+        switch (sUriMatcher.match(uri)) {
+            case MOVIE:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                        );
+                break;
+            case MOVIE_SORTED:
+                break;
+            case TRAILER:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        TrailerEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                        );
+                break;
+            case TRAILERS_BY_MOVIE:
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri:" + uri);
+        }
+        return retCursor;
     }
 
     @Nullable
