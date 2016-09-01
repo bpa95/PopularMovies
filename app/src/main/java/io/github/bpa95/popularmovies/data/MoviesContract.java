@@ -69,8 +69,9 @@ public class MoviesContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static final int SORT_BY_POPULARITY = 0;
-        public static final int SORT_BY_TOP_RATED = 1;
+        public static final int SORT_BY_DEFAULT = 0;
+        public static final int SORT_BY_POPULARITY = 1;
+        public static final int SORT_BY_TOP_RATED = 2;
 
         /**
          * Builds content uri with sort_by query parameter
@@ -81,6 +82,7 @@ public class MoviesContract {
          */
         public static Uri buildMovieSortedUri(int sortBy) {
             switch (sortBy) {
+                case SORT_BY_DEFAULT:
                 case SORT_BY_POPULARITY:
                 case SORT_BY_TOP_RATED:
                     return CONTENT_URI.buildUpon().appendQueryParameter(PARAM_SORT_BY, Integer.toString(sortBy)).build();
@@ -94,7 +96,7 @@ public class MoviesContract {
          *
          * @param uri given uri
          * @return query parameter if it is one of SORT_BY constants,
-         * SORT_BY_POPULARITY - otherwise
+         * SORT_BY_DEFAULT - otherwise
          */
         public static int getSortByFromUri(Uri uri) {
             String sortBy = uri.getQueryParameter(PARAM_SORT_BY);
@@ -105,10 +107,10 @@ public class MoviesContract {
                     case SORT_BY_TOP_RATED:
                         return sortByInt;
                     default:
-                        return SORT_BY_POPULARITY;
+                        return SORT_BY_DEFAULT;
                 }
             } else {
-                return SORT_BY_POPULARITY;
+                return SORT_BY_DEFAULT;
             }
         }
     }
