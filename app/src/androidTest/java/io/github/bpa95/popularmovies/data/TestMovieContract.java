@@ -10,16 +10,16 @@ import android.test.AndroidTestCase;
 public class TestMovieContract extends AndroidTestCase {
 
     // intentionally includes a slash to make sure Uri is getting quoted correctly
-    private static final String TEST_SORT_BY = "/popular";
+    private static final int TEST_SORT_BY = MoviesContract.MovieEntry.SORT_BY_TOP_RATED;
 
     public void testBuildMovieSortedUri() {
         Uri uri = MoviesContract.MovieEntry.buildMovieSortedUri(TEST_SORT_BY);
         assertNotNull("Error: Null Uri returned.", uri);
         assertEquals("Error: SortBy not properly appended to the end of the Uri",
-                TEST_SORT_BY, uri.getLastPathSegment());
+                TEST_SORT_BY, Integer.parseInt(uri.getQueryParameter(MoviesContract.MovieEntry.PARAM_SORT_BY)));
         assertEquals("Error: Uri doesn't match expected result",
                 uri.toString(),
-                "content://io.github.bpa95.popularmovies/movie/%2Fpopular");
+                "content://io.github.bpa95.popularmovies/movie?sort_by=1");
         assertEquals("Error: getSortByFromUri doesn't work",
                 MoviesContract.MovieEntry.getSortByFromUri(uri), TEST_SORT_BY);
     }
