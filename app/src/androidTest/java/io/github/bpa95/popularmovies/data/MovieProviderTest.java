@@ -26,7 +26,7 @@ public class MovieProviderTest extends AndroidTestCase {
 
     public void testGetType() {
         String type = mContext.getContentResolver().getType(MoviesContract.MovieEntry.CONTENT_URI);
-        assertEquals("Error: the MovieEntry CONTENT_URI shoud return MovieEntry.CONTENT_TYPE",
+        assertEquals("Error: the MovieEntry CONTENT_URI should return MovieEntry.CONTENT_TYPE",
                 type, MoviesContract.MovieEntry.CONTENT_TYPE);
     }
 }
