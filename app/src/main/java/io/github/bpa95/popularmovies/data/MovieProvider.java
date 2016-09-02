@@ -171,12 +171,53 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+        // this makes delete all rows return the number of rows deleted
+        if (null == selection) selection = "1";
+        switch (match) {
+            case MOVIE: {
+                rowsDeleted = db.delete(MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            case TRAILER: {
+                rowsDeleted = db.delete(TrailerEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        Context context = getContext();
+        if (rowsDeleted > 0 && context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+
+        switch (match) {
+            case MOVIE: {
+                rowsUpdated = db.update(MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            case TRAILER: {
+                rowsUpdated = db.update(TrailerEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        Context context = getContext();
+        if (rowsUpdated > 0 && context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 }

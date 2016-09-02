@@ -34,6 +34,37 @@ public class MovieProviderTest extends AndroidTestCase {
         db.close();
     }
 
+    public void deleteAllRecordsFromProvider() {
+        mContext.getContentResolver().delete(MovieEntry.CONTENT_URI, null, null);
+        mContext.getContentResolver().delete(TrailerEntry.CONTENT_URI, null, null);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from Movie table during delete", 0,
+                cursor == null ? -1 : cursor.getCount());
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        cursor = mContext.getContentResolver().query(
+                TrailerEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from Trailer table during delete", 0,
+                cursor == null ? -1 : cursor.getCount());
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
     /*
         This function gets called before each test is executed to delete the database.  This makes
         sure that we always have a clean test.
@@ -41,7 +72,7 @@ public class MovieProviderTest extends AndroidTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        deleteAllRecordsFromDB();
+        deleteAllRecordsFromProvider();
     }
 
     public void testBuildUriMatcher() {
@@ -172,4 +203,72 @@ public class MovieProviderTest extends AndroidTestCase {
         TestDb.validateCursor("Error validating joined Movie and Trailer data", cursor, movieValues);
     }
 
+    public void testDeleteRecords() {
+        testInsert();
+
+        TestUtilities.TestContentObserver movieObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieEntry.CONTENT_URI, true, movieObserver);
+
+        TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(TrailerEntry.CONTENT_URI, true, trailerObserver);
+
+        deleteAllRecordsFromProvider();
+
+        movieObserver.waitForNotificationOrFail();
+        trailerObserver.waitForNotificationOrFail();
+
+        mContext.getContentResolver().unregisterContentObserver(movieObserver);
+        mContext.getContentResolver().unregisterContentObserver(trailerObserver);
+    }
+
+    public void testUpdate() {
+        ContentValues movieValues = TestDb.createFakeMovieFavoriteValues();
+
+        Uri movieUri = mContext.getContentResolver().insert(MovieEntry.CONTENT_URI, movieValues);
+        long movieRowId = ContentUris.parseId(movieUri);
+
+        assertTrue(movieRowId != -1);
+
+        ContentValues updatedValues = TestDb.createFakeMovieNotFavoriteValues();
+
+        Cursor movieCursor = mContext.getContentResolver().query(MovieEntry.CONTENT_URI, null, null, null, null);
+
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        if (movieCursor != null) {
+            movieCursor.registerContentObserver(tco);
+        } else {
+            fail("movieCursor is null");
+        }
+
+        int count = mContext.getContentResolver().update(
+                MovieEntry.CONTENT_URI,
+                updatedValues,
+                MovieEntry._ID + " = ?",
+                new String[]{Long.toString(movieRowId)}
+        );
+        assertEquals(count, 1);
+
+        // Test to make sure our observer is called.  If not, we throw an assertion.
+        tco.waitForNotificationOrFail();
+
+        movieCursor.unregisterContentObserver(tco);
+        movieCursor.close();
+
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null,
+                MovieEntry._ID + " = ?",
+                new String[]{Long.toString(movieRowId)},
+                null
+        );
+
+        TestDb.validateCursor("testUpdate.  Error validating movie entry update.",
+                cursor, updatedValues);
+
+        if (cursor != null) {
+            cursor.close();
+        } else {
+            fail("testUpdate. Cursor is null");
+        }
+    }
 }
