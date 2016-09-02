@@ -72,8 +72,10 @@ public class TestDb extends AndroidTestCase {
         locationColumnHashSet.add(MovieEntry.COLUMN_POSTER_PATH);
         locationColumnHashSet.add(MovieEntry.COLUMN_TITLE);
         locationColumnHashSet.add(MovieEntry.COLUMN_RELEASE_DATE);
+        locationColumnHashSet.add(MovieEntry.COLUMN_POPULARITY);
         locationColumnHashSet.add(MovieEntry.COLUMN_VOTE_AVERAGE);
         locationColumnHashSet.add(MovieEntry.COLUMN_OVERVIEW);
+        locationColumnHashSet.add(MovieEntry.COLUMN_FAVORITE);
 
 
         int columnNameIndex = c.getColumnIndex("name");
@@ -89,7 +91,7 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
-    private static ContentValues createFakeMovieValues() {
+    public static ContentValues createFakeMovieFavoriteValues() {
         ContentValues cv = new ContentValues();
         cv.put(MovieEntry.COLUMN_MOVIE_ID, 123);
         cv.put(MovieEntry.COLUMN_POSTER_PATH, "https://bfox.files.wordpress.com/2014/11/interstellar-movie.jpg");
@@ -99,6 +101,19 @@ public class TestDb extends AndroidTestCase {
         cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 9.3);
         cv.put(MovieEntry.COLUMN_OVERVIEW, "Awesome movie");
         cv.put(MovieEntry.COLUMN_FAVORITE, 1);
+        return cv;
+    }
+
+    public static ContentValues createFakeMovieNotFavoriteValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(MovieEntry.COLUMN_MOVIE_ID, 124);
+        cv.put(MovieEntry.COLUMN_POSTER_PATH, "https://bfox.files.wordpress.com/2014/11/interstellar-movie.jpg");
+        cv.put(MovieEntry.COLUMN_TITLE, "Not Interstellar");
+        cv.put(MovieEntry.COLUMN_RELEASE_DATE, 314159265);
+        cv.put(MovieEntry.COLUMN_POPULARITY, 1.2); // TODO check 10.0
+        cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 1.3);
+        cv.put(MovieEntry.COLUMN_OVERVIEW, "Not awesome movie");
+        cv.put(MovieEntry.COLUMN_FAVORITE, 0);
         return cv;
     }
 
@@ -122,18 +137,18 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testMovieTable() {
-        insertLocation();
+        insertMovie();
     }
 
-    private static ContentValues createFakeTrailerValues(long rowId) {
+    public static ContentValues createFakeTrailerValues(long rowId) {
         ContentValues cv = new ContentValues();
-        cv.put(TrailerEntry.COLUMN_MOVIE_ID, rowId);
+        cv.put(TrailerEntry.COLUMN_ID_MOVIE, rowId);
         cv.put(TrailerEntry.COLUMN_TRAILER_PATH, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         return cv;
     }
 
     public void testTrailerTable() {
-        long rowMovieId = insertLocation();
+        long rowMovieId = insertMovie();
         SQLiteDatabase db = new MovieDbHelper(this.mContext).getWritableDatabase();
         ContentValues cv = createFakeTrailerValues(rowMovieId);
         long rowTrailerId = db.insert(TrailerEntry.TABLE_NAME, null, cv);
@@ -151,9 +166,9 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
-    public long insertLocation() {
+    public long insertMovie() {
         SQLiteDatabase db = new MovieDbHelper(this.mContext).getWritableDatabase();
-        ContentValues cv = createFakeMovieValues();
+        ContentValues cv = createFakeMovieFavoriteValues();
         long rowId = db.insert(MovieEntry.TABLE_NAME, null, cv);
         Cursor c = db.query(
                 MovieEntry.TABLE_NAME,

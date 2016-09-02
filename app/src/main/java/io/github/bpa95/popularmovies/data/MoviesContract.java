@@ -88,7 +88,7 @@ public class MoviesContract {
         /**
          * Foreign key into the movie table
          */
-        public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_ID_MOVIE = "id_movie";
         /**
          * Url to the trailer
          */
@@ -102,8 +102,8 @@ public class MoviesContract {
             return CONTENT_URI.buildUpon().appendPath(Integer.toString(movieId)).build();
         }
 
-        public static int getMovieIdFromUri(Uri uri) {
-            return Integer.parseInt(uri.getPathSegments().get(1));
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
     }
 }

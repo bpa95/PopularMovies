@@ -2,8 +2,10 @@ package io.github.bpa95.popularmovies.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
@@ -19,6 +21,22 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE_FAVORITE = 101;
     static final int TRAILER = 200;
     static final int TRAILERS_BY_MOVIE = 201;
+
+    private static final SQLiteQueryBuilder sTrailersByMovieQueryBuilder;
+
+    static {
+        sTrailersByMovieQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //movie INNER JOIN trailer ON trailer.id_movie = movie._id
+        sTrailersByMovieQueryBuilder.setTables(
+                MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        TrailerEntry.TABLE_NAME +
+                        " ON " + TrailerEntry.TABLE_NAME +
+                        "." + TrailerEntry.COLUMN_ID_MOVIE +
+                        " = " + MovieEntry.TABLE_NAME +
+                        "." + MovieEntry._ID);
+    }
 
 
     static UriMatcher buildUriMatcher() {
@@ -39,6 +57,7 @@ public class MovieProvider extends ContentProvider {
         return true;
     }
 
+
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -53,7 +72,18 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder
-                        );
+                );
+                break;
+            case MOVIE_FAVORITE:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        MovieEntry.COLUMN_FAVORITE + " = ?",
+                        new String[]{"1"},
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             case TRAILER:
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -64,12 +94,25 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder
-                        );
+                );
                 break;
             case TRAILERS_BY_MOVIE:
+                retCursor = sTrailersByMovieQueryBuilder.query(
+                        mOpenHelper.getReadableDatabase(),
+                        projection,
+                        MovieEntry.COLUMN_MOVIE_ID + " = ?",
+                        new String[]{TrailerEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri:" + uri);
+        }
+        Context context = getContext();
+        if (retCursor != null && context != null) {
+            retCursor.setNotificationUri(context.getContentResolver(), uri);
         }
         return retCursor;
     }

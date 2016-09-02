@@ -9,13 +9,13 @@ import android.test.AndroidTestCase;
  */
 public class TestMovieContract extends AndroidTestCase {
 
-    private static final int TEST_MOVIE_ID = 123;
+    private static final String TEST_MOVIE_ID = "123";
 
     public void testBuildTrailersByMovieUri() {
-        Uri uri = MoviesContract.TrailerEntry.buildTrailersByMovieIdUri(TEST_MOVIE_ID);
+        Uri uri = MoviesContract.TrailerEntry.buildTrailersByMovieIdUri(Integer.parseInt(TEST_MOVIE_ID));
         assertNotNull("Error: Null Uri returned.", uri);
         assertEquals("Error: Movie id not properly appended to the end of the Uri",
-                TEST_MOVIE_ID, Integer.parseInt(uri.getLastPathSegment()));
+                TEST_MOVIE_ID, uri.getLastPathSegment());
         assertEquals("Error: Uri doesn't match expected result",
                 uri.toString(),
                 "content://io.github.bpa95.popularmovies/trailer/123");
