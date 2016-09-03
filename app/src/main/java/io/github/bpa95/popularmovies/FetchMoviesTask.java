@@ -119,7 +119,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
     /**
      * Constructs the URL for the Movie Database query, which contains the json object
-     * with movie data can be fetched. Movies will be in order specified by parameter.
+     * with movie data. Movies will be in order specified by parameter.
      *
      * @param SORT_ORDER part of path which specify sort order
      * @return correct url to The Movie Database from which the json object with movie data can be fetched
