@@ -1,6 +1,9 @@
 package io.github.bpa95.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -20,6 +23,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 /**
  * Fetches from server the json with movies, parses it, and fills the adapter with Movies objects.
@@ -168,8 +174,61 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            // Read the input stream into a String
-            return getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
+            Movie[] movies = getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
+
+            ContentValues[] cvArray = new ContentValues[movies.length];
+            for (int i = 0; i < movies.length; i++) {
+                Movie movie = movies[i];
+                ContentValues cv = new ContentValues();
+                cv.put(MovieEntry.COLUMN_MOVIE_ID, movie.id);
+                cv.put(MovieEntry.COLUMN_POSTER_PATH, movie.posterPath.toString());
+                cv.put(MovieEntry.COLUMN_TITLE, movie.title);
+                cv.put(MovieEntry.COLUMN_RELEASE_DATE, movie.releaseDate);
+                cv.put(MovieEntry.COLUMN_POPULARITY, movie.popularity);
+                cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, movie.voteAverage);
+                cv.put(MovieEntry.COLUMN_OVERVIEW, movie.overview);
+                cv.put(MovieEntry.COLUMN_FAVORITE, movie.favorite);
+
+                cvArray[i] = cv;
+            }
+            if (cvArray.length > 0) {
+                mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
+            }
+
+            String sortOrder = MovieEntry.COLUMN_POPULARITY + " DESC";
+            if (SORT_ORDER.equals(mContext.getString(R.string.pref_sortOrder_topRated_value))) {
+                sortOrder = MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+            }
+            Cursor cursor = mContext.getContentResolver().query(
+                    MovieEntry.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    sortOrder
+            );
+            if (cursor == null) {
+                return movies;
+            }
+            ArrayList<Movie> moviesList = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    ContentValues cv = new ContentValues();
+                    DatabaseUtils.cursorRowToContentValues(cursor, cv);
+                    Movie movie = new Movie();
+                    movie.id = cv.getAsInteger(MovieEntry.COLUMN_MOVIE_ID);
+                    movie.posterPath = Uri.parse(cv.getAsString(MovieEntry.COLUMN_POSTER_PATH));
+                    movie.title = cv.getAsString(MovieEntry.COLUMN_TITLE);
+                    movie.releaseDate = cv.getAsLong(MovieEntry.COLUMN_RELEASE_DATE);
+                    movie.popularity = cv.getAsDouble(MovieEntry.COLUMN_POPULARITY);
+                    movie.voteAverage = cv.getAsDouble(MovieEntry.COLUMN_VOTE_AVERAGE);
+                    movie.overview = cv.getAsString(MovieEntry.COLUMN_OVERVIEW);
+                    movie.favorite = cv.getAsInteger(MovieEntry.COLUMN_FAVORITE);
+                    moviesList.add(movie);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+
+            return moviesList.toArray(new Movie[0]);
         } catch (IOException | JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
             mErrorMessage = mContext.getString(R.string.error_fetching);

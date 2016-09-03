@@ -15,7 +15,10 @@ public class Movie implements Parcelable {
     double popularity;
     double voteAverage;
     String overview;
-    boolean favorite;
+    int favorite;
+
+    Movie() {
+    }
 
     Movie(JSONObject jsonMovie) throws JSONException {
         // These are the names of the JSON objects that need to be extracted
@@ -33,7 +36,7 @@ public class Movie implements Parcelable {
         popularity = jsonMovie.getDouble(TMDB_POPULARITY);
         voteAverage = jsonMovie.getDouble(TMDB_VOTE_AVERAGE);
         overview = jsonMovie.getString(TMDB_OVERVIEW);
-        favorite = false;
+        favorite = 0;
 
         final String BASE_URL = "http://image.tmdb.org/t/p/";
         final String IMAGE_SIZE = "w185";
@@ -57,7 +60,7 @@ public class Movie implements Parcelable {
         popularity = in.readDouble();
         voteAverage = in.readDouble();
         overview = in.readString();
-        favorite = in.readInt() == 1;
+        favorite = in.readInt();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -86,6 +89,6 @@ public class Movie implements Parcelable {
         parcel.writeDouble(popularity);
         parcel.writeDouble(voteAverage);
         parcel.writeString(overview);
-        parcel.writeInt(favorite ? 1 : 0);
+        parcel.writeInt(favorite);
     }
 }
