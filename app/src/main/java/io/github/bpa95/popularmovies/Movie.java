@@ -7,11 +7,15 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class Movie implements Parcelable {
     int id;
     Uri posterPath;
     String title;
-    long releaseDate;
+    String releaseDate;
     double popularity;
     double voteAverage;
     String overview;
@@ -48,15 +52,27 @@ public class Movie implements Parcelable {
                 .build();
     }
 
-    private long parseDate(String date) {
-        return 0;
+
+    private static final String DB_DATE_FORMAT = "yyyy-dd-MM";
+    private static final SimpleDateFormat dbDateFormat = new SimpleDateFormat(DB_DATE_FORMAT, Locale.getDefault());
+    private static final String UI_DATE_FORMAT = "MMM d, yyyy";
+    private static final SimpleDateFormat uiDateFormat = new SimpleDateFormat(UI_DATE_FORMAT, Locale.getDefault());
+
+    private static String parseDate(String date) {
+        String pDate;
+        try {
+            pDate = uiDateFormat.format(dbDateFormat.parse(date));
+        } catch (ParseException e) {
+            pDate = "Unknown";
+        }
+        return pDate;
     }
 
     private Movie(Parcel in) {
         id = in.readInt();
         posterPath = in.readParcelable(Uri.class.getClassLoader());
         title = in.readString();
-        releaseDate = in.readLong();
+        releaseDate = in.readString();
         popularity = in.readDouble();
         voteAverage = in.readDouble();
         overview = in.readString();
@@ -85,7 +101,7 @@ public class Movie implements Parcelable {
         parcel.writeInt(id);
         parcel.writeParcelable(posterPath, i);
         parcel.writeString(title);
-        parcel.writeLong(releaseDate);
+        parcel.writeString(releaseDate);
         parcel.writeDouble(popularity);
         parcel.writeDouble(voteAverage);
         parcel.writeString(overview);

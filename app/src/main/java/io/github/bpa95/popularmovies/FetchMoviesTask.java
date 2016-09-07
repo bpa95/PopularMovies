@@ -218,7 +218,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
                     movie.id = cv.getAsInteger(MovieEntry.COLUMN_MOVIE_ID);
                     movie.posterPath = Uri.parse(cv.getAsString(MovieEntry.COLUMN_POSTER_PATH));
                     movie.title = cv.getAsString(MovieEntry.COLUMN_TITLE);
-                    movie.releaseDate = cv.getAsLong(MovieEntry.COLUMN_RELEASE_DATE);
+                    movie.releaseDate = cv.getAsString(MovieEntry.COLUMN_RELEASE_DATE);
                     movie.popularity = cv.getAsDouble(MovieEntry.COLUMN_POPULARITY);
                     movie.voteAverage = cv.getAsDouble(MovieEntry.COLUMN_VOTE_AVERAGE);
                     movie.overview = cv.getAsString(MovieEntry.COLUMN_OVERVIEW);
