@@ -1,33 +1,35 @@
 package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.util.ArrayList;
+import io.github.bpa95.popularmovies.data.MoviesContract;
 
 /**
  * A fragment containing the grid view of movies.
  */
 public class MoviesGridFragment extends Fragment {
 
-    private MovieAdapter mMovieAdapter;
-    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
-            intentDetail.putExtra(DetailFragment.EXTRA_MOVIE, mMovieAdapter.getItem(i));
-            startActivity(intentDetail);
-        }
-    };
+    private static final String LOG_TAG = MoviesGridFragment.class.getSimpleName();
+
+    private MovieCursorAdapter mMovieAdapter;
+//    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
+//        @Override
+//        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
+//            intentDetail.putExtra(DetailFragment.EXTRA_MOVIE, mMovieAdapter.getItem(i));
+//            startActivity(intentDetail);
+//        }
+//    };
 
     public MoviesGridFragment() {
     }
@@ -37,13 +39,24 @@ public class MoviesGridFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies_grid, container, false);
 
-        mMovieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrderPref = prefs.getString(getString(R.string.pref_sortOrder_key),
+                getString(R.string.pref_sortOrder_popular_value));
+        String sortOrder = MoviesContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+        if (sortOrderPref.equals(getString(R.string.pref_sortOrder_topRated_value))) {
+            sortOrder = MoviesContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+        }
+        Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
+
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, sortOrder);
+
+        mMovieAdapter = new MovieCursorAdapter(getActivity(), cursor, 0);
 
         // Get a reference to the GridView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
         gridView.setAdapter(mMovieAdapter);
 
-        gridView.setOnItemClickListener(mListener);
+//        gridView.setOnItemClickListener(mListener);
 
         return rootView;
     }
@@ -59,8 +72,8 @@ public class MoviesGridFragment extends Fragment {
      */
     private void updateGrid() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sort_order = prefs.getString(getString(R.string.pref_sortOrder_key),
+        String sortOrder = prefs.getString(getString(R.string.pref_sortOrder_key),
                 getString(R.string.pref_sortOrder_popular_value));
-        new FetchMoviesTask(getActivity(), mMovieAdapter).execute(sort_order);
+        new FetchMoviesTask(getActivity()).execute(sortOrder);
     }
 }

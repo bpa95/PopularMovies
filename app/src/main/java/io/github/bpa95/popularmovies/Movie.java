@@ -1,5 +1,6 @@
 package io.github.bpa95.popularmovies;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,6 +11,8 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 public class Movie implements Parcelable {
     int id;
@@ -35,21 +38,34 @@ public class Movie implements Parcelable {
         final String TMDB_OVERVIEW = "overview";
 
         id = jsonMovie.getInt(TMDB_MOVIE_ID);
+        posterPath = createPosterPath(jsonMovie.getString(TMDB_POSTER_PATH));
         title = jsonMovie.getString(TMDB_TITLE);
         releaseDate = parseDate(jsonMovie.getString(TMDB_RELEASE_DATE));
         popularity = jsonMovie.getDouble(TMDB_POPULARITY);
         voteAverage = jsonMovie.getDouble(TMDB_VOTE_AVERAGE);
         overview = jsonMovie.getString(TMDB_OVERVIEW);
         favorite = 0;
+    }
 
+    private Uri createPosterPath(String path) {
         final String BASE_URL = "http://image.tmdb.org/t/p/";
         final String IMAGE_SIZE = "w185";
-        final String IMAGE_PATH = jsonMovie.getString(TMDB_POSTER_PATH);
 
-        posterPath = Uri.parse(BASE_URL).buildUpon()
+        return Uri.parse(BASE_URL).buildUpon()
                 .appendEncodedPath(IMAGE_SIZE)
-                .appendEncodedPath(IMAGE_PATH)
+                .appendEncodedPath(path)
                 .build();
+    }
+
+    Movie(Cursor cursor) {
+        id = cursor.getInt(cursor.getColumnIndex(MovieEntry.COLUMN_MOVIE_ID));
+        posterPath = Uri.parse(cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_POSTER_PATH)));
+        title = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_TITLE));
+        releaseDate = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE));
+        popularity = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_POPULARITY));
+        voteAverage = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE));
+        overview = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
+        favorite = cursor.getInt(cursor.getColumnIndex(MovieEntry.COLUMN_FAVORITE));
     }
 
 

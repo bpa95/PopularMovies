@@ -35,12 +35,10 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
     private String mErrorMessage;
 
-    private MovieAdapter mMovieAdapter;
     private final Context mContext;
 
-    public FetchMoviesTask(Context mContext, MovieAdapter mMovieAdapter) {
+    public FetchMoviesTask(Context mContext) {
         this.mContext = mContext;
-        this.mMovieAdapter = mMovieAdapter;
     }
 
     /**
@@ -77,7 +75,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
      */
     // uses solution from stackoverflow
     // http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-timeouts
-    public boolean isOnline() {
+    private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -242,10 +240,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
 
     @Override
     protected void onPostExecute(Movie[] movies) {
-        if (movies != null) {
-            mMovieAdapter.clear();
-            mMovieAdapter.addAll(movies);
-        } else {
+        if (movies == null) {
             Toast.makeText(mContext, mErrorMessage, Toast.LENGTH_SHORT).show();
         }
     }
