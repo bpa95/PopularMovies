@@ -2,6 +2,7 @@ package io.github.bpa95.popularmovies;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,15 @@ public class MovieCursorAdapter extends CursorAdapter {
         return LayoutInflater.from(context).inflate(R.layout.grid_movie_item, parent, false);
     }
 
+    private Uri getPosterPathFromCursor(Cursor cursor) {
+        return Uri.parse(cursor.getString(MoviesGridFragment.COLUMN_POSTER_PATH));
+    }
+
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        Movie movie = new Movie(cursor);
+        Uri posterPath = getPosterPathFromCursor(cursor);
 
         ImageView imageView = (ImageView) view.findViewById(R.id.movies_grid_image_view_item);
-        Picasso.with(context).load(movie.posterPath).into(imageView);
+        Picasso.with(context).load(posterPath).into(imageView);
     }
 }

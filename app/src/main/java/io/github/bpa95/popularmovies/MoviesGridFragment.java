@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,6 +77,14 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         new FetchMoviesTask(getActivity()).execute(sortOrder);
     }
 
+    private static final String[] MOVIE_COLUMNS = new String[] {
+            MoviesContract.MovieEntry._ID,
+            MoviesContract.MovieEntry.COLUMN_POSTER_PATH
+    };
+
+    static final int COLUMN_ID = 0;
+    static final int COLUMN_POSTER_PATH = 1;
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id != LOADER_ID) {
@@ -93,22 +100,16 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         }
         Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
 
-        Log.d(LOG_TAG, "onCreateLoader");
-
-        return new CursorLoader(getActivity(), uri, null, null, null, sortOrder);
+        return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mMovieAdapter.swapCursor(data);
-        Log.d(LOG_TAG, "onLoadFinished");
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mMovieAdapter.swapCursor(null);
-        Log.d(LOG_TAG, "onLoaderReset");
-
     }
 }
