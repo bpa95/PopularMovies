@@ -3,6 +3,7 @@ package io.github.bpa95.popularmovies;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import io.github.bpa95.popularmovies.data.MoviesContract;
@@ -27,14 +29,15 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     public static final int LOADER_ID = 0;
 
     private MovieCursorAdapter mMovieAdapter;
-//    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
-//        @Override
-//        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
-//            intentDetail.putExtra(DetailFragment.EXTRA_MOVIE, mMovieAdapter.getItem(i));
-//            startActivity(intentDetail);
-//        }
-//    };
+    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+            Cursor cursor = (Cursor) adapterView.getItemAtPosition(pos);
+            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
+            intentDetail.setData(MoviesContract.MovieEntry.buildMovieUri(cursor.getInt(COLUMN_ID)));
+            startActivity(intentDetail);
+        }
+    };
 
     public MoviesGridFragment() {
     }
@@ -56,7 +59,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
         gridView.setAdapter(mMovieAdapter);
 
-//        gridView.setOnItemClickListener(mListener);
+        gridView.setOnItemClickListener(mListener);
 
         return rootView;
     }
@@ -82,6 +85,8 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
             MoviesContract.MovieEntry.COLUMN_POSTER_PATH
     };
 
+    // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
+    // must change.
     static final int COLUMN_ID = 0;
     static final int COLUMN_POSTER_PATH = 1;
 

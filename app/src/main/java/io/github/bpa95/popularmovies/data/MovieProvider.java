@@ -1,6 +1,7 @@
 package io.github.bpa95.popularmovies.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -20,6 +21,7 @@ public class MovieProvider extends ContentProvider {
 
     static final int MOVIE = 100;
     static final int MOVIE_FAVORITE = 101;
+    static final int MOVIE_ITEM = 102;
     static final int TRAILER = 200;
     static final int TRAILERS_BY_MOVIE = 201;
 
@@ -46,6 +48,7 @@ public class MovieProvider extends ContentProvider {
 
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE, MOVIE);
         uriMatcher.addURI(authority, MovieEntry.buildMovieFavorite().getPath(), MOVIE_FAVORITE);
+        uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE + "/#", MOVIE_ITEM);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER, TRAILER);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER + "/#", TRAILERS_BY_MOVIE);
 
@@ -81,6 +84,17 @@ public class MovieProvider extends ContentProvider {
                         projection,
                         MovieEntry.COLUMN_FAVORITE + " = ?",
                         new String[]{"1"},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case MOVIE_ITEM:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        MovieEntry._ID + " = ?",
+                        new String[]{Long.toString(ContentUris.parseId(uri))},
                         null,
                         null,
                         sortOrder
@@ -125,7 +139,9 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
             case MOVIE_FAVORITE:
-                return MoviesContract.MovieEntry.CONTENT_TYPE;
+                return MovieEntry.CONTENT_TYPE;
+            case MOVIE_ITEM:
+                return MovieEntry.CONTENT_ITEM_TYPE;
             case TRAILER:
             case TRAILERS_BY_MOVIE:
                 return MoviesContract.TrailerEntry.CONTENT_TYPE;
