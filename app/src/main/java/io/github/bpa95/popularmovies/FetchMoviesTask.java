@@ -2,15 +2,12 @@ package io.github.bpa95.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,14 +20,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 /**
  * Fetches from server the json with movies, parses it, and fills the adapter with Movies objects.
  */
-public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
+public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
     private String mErrorMessage;
@@ -145,7 +141,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
     }
 
     @Override
-    protected Movie[] doInBackground(String... strings) {
+    protected Void doInBackground(String... strings) {
 
         HttpURLConnection urlConnection = null;
 
@@ -193,40 +189,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
                 mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
             }
 
-            String sortOrder = MovieEntry.COLUMN_POPULARITY + " DESC";
-            if (SORT_ORDER.equals(mContext.getString(R.string.pref_sortOrder_topRated_value))) {
-                sortOrder = MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-            }
-            Cursor cursor = mContext.getContentResolver().query(
-                    MovieEntry.CONTENT_URI,
-                    null,
-                    null,
-                    null,
-                    sortOrder
-            );
-            if (cursor == null) {
-                return movies;
-            }
-            ArrayList<Movie> moviesList = new ArrayList<>();
-            if (cursor.moveToFirst()) {
-                do {
-                    ContentValues cv = new ContentValues();
-                    DatabaseUtils.cursorRowToContentValues(cursor, cv);
-                    Movie movie = new Movie();
-                    movie.id = cv.getAsInteger(MovieEntry.COLUMN_MOVIE_ID);
-                    movie.posterPath = Uri.parse(cv.getAsString(MovieEntry.COLUMN_POSTER_PATH));
-                    movie.title = cv.getAsString(MovieEntry.COLUMN_TITLE);
-                    movie.releaseDate = cv.getAsString(MovieEntry.COLUMN_RELEASE_DATE);
-                    movie.popularity = cv.getAsDouble(MovieEntry.COLUMN_POPULARITY);
-                    movie.voteAverage = cv.getAsDouble(MovieEntry.COLUMN_VOTE_AVERAGE);
-                    movie.overview = cv.getAsString(MovieEntry.COLUMN_OVERVIEW);
-                    movie.favorite = cv.getAsInteger(MovieEntry.COLUMN_FAVORITE);
-                    moviesList.add(movie);
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
-
-            return moviesList.toArray(new Movie[0]);
+            return null;
         } catch (IOException | JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
             mErrorMessage = mContext.getString(R.string.error_fetching);
@@ -235,13 +198,6 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
-        }
-    }
-
-    @Override
-    protected void onPostExecute(Movie[] movies) {
-        if (movies == null) {
-            Toast.makeText(mContext, mErrorMessage, Toast.LENGTH_SHORT).show();
         }
     }
 }
