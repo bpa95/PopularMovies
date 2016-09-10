@@ -18,9 +18,22 @@ public class MovieCursorAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
+    /**
+     * Defines a class that hold resource IDs of each item layout
+     * row to prevent having to look them up each time data is
+     * bound to a row.
+     */
+    private class ViewHolder {
+        ImageView poster;
+    }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.grid_movie_item, parent, false);
+        final View view = LayoutInflater.from(context).inflate(R.layout.grid_movie_item, parent, false);
+        final ViewHolder holder = new ViewHolder();
+        holder.poster = (ImageView) view.findViewById(R.id.movies_grid_image_view_item);
+        view.setTag(holder);
+        return view;
     }
 
     private Uri getPosterPathFromCursor(Cursor cursor) {
@@ -30,8 +43,7 @@ public class MovieCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         Uri posterPath = getPosterPathFromCursor(cursor);
-
-        ImageView imageView = (ImageView) view.findViewById(R.id.movies_grid_image_view_item);
-        Picasso.with(context).load(posterPath).into(imageView);
+        final ViewHolder holder = (ViewHolder) view.getTag();
+        Picasso.with(context).load(posterPath).into(holder.poster);
     }
 }
