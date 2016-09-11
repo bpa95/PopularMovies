@@ -69,7 +69,7 @@ public class Movie implements Parcelable {
     }
 
 
-    private static final String DB_DATE_FORMAT = "yyyy-dd-MM";
+    private static final String DB_DATE_FORMAT = "yyyy-MM-dd";
     private static final SimpleDateFormat dbDateFormat = new SimpleDateFormat(DB_DATE_FORMAT, Locale.getDefault());
     private static final String UI_DATE_FORMAT = "MMM d, yyyy";
     private static final SimpleDateFormat uiDateFormat = new SimpleDateFormat(UI_DATE_FORMAT, Locale.getDefault());
