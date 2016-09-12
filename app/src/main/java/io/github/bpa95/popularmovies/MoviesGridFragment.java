@@ -26,10 +26,10 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
     private static final String LOG_TAG = MoviesGridFragment.class.getSimpleName();
 
-    public static final int LOADER_ID = 0;
+    private static final int LOADER_ID = 0;
 
     private MovieCursorAdapter mMovieAdapter;
-    private AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
+    private final AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
             Cursor cursor = (Cursor) adapterView.getItemAtPosition(pos);
@@ -53,7 +53,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies_grid, container, false);
 
-        mMovieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+        mMovieAdapter = new MovieCursorAdapter(getActivity());
 
         // Get a reference to the GridView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);

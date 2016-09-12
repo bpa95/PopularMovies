@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.github.bpa95.popularmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -20,10 +21,11 @@
         </activity>
         <activity android:name=".DetailActivity"
             android:label="@string/detail_activity_label"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            tools:targetApi="jelly_bean" />
         <activity android:name=".SettingsActivity"
             android:label="@string/action_settings"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
 
         <provider
             android:authorities="io.github.bpa95.popularmovies"

@@ -32,8 +32,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/movie_poster"
-                android:padding="10dp"
-                tools:src="@drawable/interstellar" />
+                android:padding="10dp"/>
 
             <LinearLayout
                 android:layout_width="0dp"

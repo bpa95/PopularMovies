@@ -11,11 +11,11 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-public class MovieCursorAdapter extends CursorAdapter {
+class MovieCursorAdapter extends CursorAdapter {
     private static final String LOG_TAG = MovieCursorAdapter.class.getSimpleName();
 
-    public MovieCursorAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+    public MovieCursorAdapter(Context context) {
+        super(context, null, 0);
     }
 
     /**

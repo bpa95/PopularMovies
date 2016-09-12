@@ -33,7 +33,7 @@ public class TestDb extends AndroidTestCase {
         // build a HashSet of all of the table names we wish to look for
         // Note that there will be another table in the DB that stores the
         // Android metadata (db version information)
-        final HashSet<String> tableNameHashSet = new HashSet<String>();
+        final HashSet<String> tableNameHashSet = new HashSet<>();
         tableNameHashSet.add(MovieEntry.TABLE_NAME);
         tableNameHashSet.add(TrailerEntry.TABLE_NAME);
 
@@ -66,7 +66,7 @@ public class TestDb extends AndroidTestCase {
                 c.moveToFirst());
 
         // Build a HashSet of all of the column names we want to look for
-        final HashSet<String> locationColumnHashSet = new HashSet<String>();
+        final HashSet<String> locationColumnHashSet = new HashSet<>();
         locationColumnHashSet.add(MovieEntry._ID);
         locationColumnHashSet.add(MovieEntry.COLUMN_MOVIE_ID);
         locationColumnHashSet.add(MovieEntry.COLUMN_POSTER_PATH);

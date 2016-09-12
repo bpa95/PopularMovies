@@ -23,7 +23,7 @@ import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String EXTRA_MOVIE = "io.github.bpa95.popularmovies.EXTRA_MOVIE";
 
-    public static final int LOADER_ID = 0;
+    private static final int LOADER_ID = 0;
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     @Nullable

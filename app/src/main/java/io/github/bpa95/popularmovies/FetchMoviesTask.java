@@ -26,10 +26,9 @@ import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 /**
  * Fetches from server the json with movies, parses it, and fills the adapter with Movies objects.
  */
-public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
+class FetchMoviesTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-    private String mErrorMessage;
 
     private final Context mContext;
 
@@ -146,6 +145,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
         HttpURLConnection urlConnection = null;
 
         final String SORT_ORDER;
+        String mErrorMessage;
         if (strings != null && strings.length > 0) {
             SORT_ORDER = strings[0];
         } else {
