@@ -25,11 +25,13 @@
             tools:targetApi="jelly_bean" />
         <activity android:name=".SettingsActivity"
             android:label="@string/action_settings"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            tools:ignore="UnusedAttribute" />
 
         <provider
             android:authorities="io.github.bpa95.popularmovies"
-            android:name=".data.MovieProvider"/>
+            android:name=".data.MovieProvider"
+            android:exported="false" />
     </application>
 
 </manifest>
