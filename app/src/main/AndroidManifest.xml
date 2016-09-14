@@ -22,7 +22,7 @@
         <activity android:name=".DetailActivity"
             android:label="@string/detail_activity_label"
             android:parentActivityName=".MainActivity"
-            tools:targetApi="jelly_bean" />
+            tools:ignore="UnusedAttribute" />
         <activity android:name=".SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".MainActivity"

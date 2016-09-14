@@ -7,11 +7,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+    private static boolean mTwoPaneMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTwoPaneMode = null != findViewById(R.id.movie_detail_container);
+        if (mTwoPaneMode && savedInstanceState == null) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, new DetailFragment())
+                    .commit();
+        }
     }
 
     @Override

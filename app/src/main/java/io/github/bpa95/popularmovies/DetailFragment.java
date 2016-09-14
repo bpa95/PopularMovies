@@ -34,7 +34,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        if (getActivity().getIntent().getData() != null) {
+            getLoaderManager().initLoader(LOADER_ID, null, this);
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
