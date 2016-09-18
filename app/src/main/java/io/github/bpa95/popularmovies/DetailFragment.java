@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -26,6 +27,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int LOADER_ID = 0;
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
+    static final String DETAIL_URI = "detail_uri";
+
+    private Uri mUri;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,13 +39,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (getActivity().getIntent().getData() != null) {
+        mUri = getActivity().getIntent().getData();
+        Bundle args = getArguments();
+        if (mUri == null && args != null) {
+            mUri = args.getParcelable(DETAIL_URI);
+        }
+        if (mUri != null) {
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
         super.onActivityCreated(savedInstanceState);
     }
 
-    private final String[] MOVIE_COLUMNS = new String[]{
+    private final String[] MOVIE_COLUMNS = new String[] {
             MovieEntry.COLUMN_MOVIE_ID,
             MovieEntry.COLUMN_TITLE,
             MovieEntry.COLUMN_RELEASE_DATE,
@@ -62,7 +72,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(
                 getActivity(),
-                getActivity().getIntent().getData(),
+                mUri,
                 MOVIE_COLUMNS,
                 null,
                 null,

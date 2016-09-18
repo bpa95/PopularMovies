@@ -3,7 +3,6 @@ package io.github.bpa95.popularmovies;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -28,14 +27,24 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
     private static final int LOADER_ID = 0;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        void onMovieSelected(Uri uri);
+    }
+
     private MovieCursorAdapter mMovieAdapter;
     private final AdapterView.OnItemClickListener mListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
             Cursor cursor = (Cursor) adapterView.getItemAtPosition(pos);
-            Intent intentDetail = new Intent(getActivity(), DetailActivity.class);
-            intentDetail.setData(MoviesContract.MovieEntry.buildMovieUri(cursor.getInt(COLUMN_ID)));
-            startActivity(intentDetail);
+            ((Callback) getActivity()).
+                    onMovieSelected(
+                            MoviesContract.MovieEntry.buildMovieUri(cursor.getInt(COLUMN_ID))
+                    );
         }
     };
 
@@ -80,7 +89,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         new FetchMoviesTask(getActivity()).execute(sortOrder);
     }
 
-    private static final String[] MOVIE_COLUMNS = new String[] {
+    private static final String[] MOVIE_COLUMNS = new String[]{
             MoviesContract.MovieEntry._ID,
             MoviesContract.MovieEntry.COLUMN_POSTER_PATH
     };

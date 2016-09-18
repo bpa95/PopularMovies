@@ -1,12 +1,13 @@
 package io.github.bpa95.popularmovies;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
     private static boolean mTwoPaneMode;
 
     @Override
@@ -19,6 +20,25 @@ public class MainActivity extends AppCompatActivity {
             getFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, new DetailFragment())
                     .commit();
+        }
+    }
+
+    @Override
+    public void onMovieSelected(Uri uri) {
+        if (mTwoPaneMode) {
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, uri);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intentDetail = new Intent(this, DetailActivity.class);
+            intentDetail.setData(uri);
+            startActivity(intentDetail);
         }
     }
 
