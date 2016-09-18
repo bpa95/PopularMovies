@@ -27,6 +27,10 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
     private static final int LOADER_ID = 0;
 
+    private int mPosition = 0;
+
+    private static final String SELECTED_KEY = "selected";
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -45,6 +49,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
                     onMovieSelected(
                             MoviesContract.MovieEntry.buildMovieUri(cursor.getInt(COLUMN_ID))
                     );
+            mPosition = pos;
         }
     };
 
@@ -70,6 +75,11 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
         gridView.setOnItemClickListener(mListener);
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+        gridView.smoothScrollToPosition(mPosition);
+
         return rootView;
     }
 
@@ -77,6 +87,12 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     public void onStart() {
         super.onStart();
         updateGrid();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SELECTED_KEY, mPosition);
     }
 
     /**
