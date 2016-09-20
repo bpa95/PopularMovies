@@ -19,18 +19,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity"
+        <activity
+            android:name=".DetailActivity"
             android:label="@string/detail_activity_label"
             android:parentActivityName=".MainActivity"
-            tools:ignore="UnusedAttribute" />
-        <activity android:name=".SettingsActivity"
+            tools:ignore="UnusedAttribute">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".MainActivity"
             tools:ignore="UnusedAttribute" />
 
         <provider
-            android:authorities="io.github.bpa95.popularmovies"
             android:name=".data.MovieProvider"
+            android:authorities="io.github.bpa95.popularmovies"
             android:exported="false" />
     </application>
 
