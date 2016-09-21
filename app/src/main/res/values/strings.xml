@@ -13,6 +13,8 @@
     <string name="error_fetching">Error while fetching data</string>
     <string name="check_connection">Check internet connection</string>
     <string name="never_happens">Should never happen</string>
+    <string name="show_favorite">Show favorite</string>
+    <string name="change_sort_order">Change sort order</string>
 
     <string-array name="pref_sortOrder_entries">
         <item>@string/pref_sortOrder_popular_entry</item>
