@@ -107,6 +107,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
             sortOrder = getString(R.string.pref_sortOrder_topRated_value);
         }
         new FetchMoviesTask(getActivity()).execute(sortOrder);
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     private static final String[] MOVIE_COLUMNS = new String[]{

@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
         getPreferences(MODE_PRIVATE).edit()
                 .putInt(PREF_SORT_ORDER, sortOrder)
                 .apply();
-        // TODO: update MoviesGridView
+        ((MoviesGridFragment) getFragmentManager().findFragmentById(R.id.movies_grid_fragment))
+                .updateGrid();
     }
 
     @Override
