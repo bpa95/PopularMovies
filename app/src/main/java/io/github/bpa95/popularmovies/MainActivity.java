@@ -1,6 +1,7 @@
 package io.github.bpa95.popularmovies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,8 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
     public static final String PREF_SORT_ORDER = "pref_sort_order";
     public static final int PREF_SORT_BY_POPULARITY = 0;
     public static final int PREF_SORT_BY_RATING = 1;
+
+    public static final String PREF_FAVORITE = "pref_favorite";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem item = menu.findItem(R.id.action_favorite);
+        setIcon(item, getPreferences(MODE_PRIVATE).getBoolean(PREF_FAVORITE, false));
         return true;
     }
 
@@ -64,6 +69,26 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
                 .apply();
         ((MoviesGridFragment) getFragmentManager().findFragmentById(R.id.movies_grid_fragment))
                 .updateGrid();
+    }
+
+    private void changeFavoriteState(MenuItem item) {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        boolean isFavorite = prefs.getBoolean(PREF_FAVORITE, false);
+        if (isFavorite) {
+            prefs.edit().putBoolean(PREF_FAVORITE, false).apply();
+            setIcon(item, false);
+        } else {
+            prefs.edit().putBoolean(PREF_FAVORITE, true).apply();
+            setIcon(item, true);
+        }
+    }
+
+    private void setIcon(MenuItem item, boolean isFavorite) {
+        if (isFavorite) {
+            item.setIcon(R.drawable.ic_star_white_24dp);
+        } else {
+            item.setIcon(R.drawable.ic_star_border_white_24dp);
+        }
     }
 
     @Override
@@ -76,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
                 return true;
             case R.id.menu_sort_top_rated:
                 changeSortOrder(PREF_SORT_BY_RATING);
+                return true;
+            case R.id.action_favorite:
+                changeFavoriteState(item);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
