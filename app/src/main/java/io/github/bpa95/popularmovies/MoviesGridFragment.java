@@ -2,13 +2,13 @@ package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,10 +98,14 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     /**
      * Fills grid view with posters of movies fetched from server.
      */
-    private void updateGrid() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortOrder = prefs.getString(getString(R.string.pref_sortOrder_key),
-                getString(R.string.pref_sortOrder_popular_value));
+    public void updateGrid() {
+        SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
+                MainActivity.PREF_SORT_BY_POPULARITY);
+        String sortOrder = getString(R.string.pref_sortOrder_popular_value);
+        if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
+            sortOrder = getString(R.string.pref_sortOrder_topRated_value);
+        }
         new FetchMoviesTask(getActivity()).execute(sortOrder);
     }
 
@@ -121,11 +125,11 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
             return null;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortOrderPref = prefs.getString(getString(R.string.pref_sortOrder_key),
-                getString(R.string.pref_sortOrder_popular_value));
+        SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
+                MainActivity.PREF_SORT_BY_POPULARITY);
         String sortOrder = MoviesContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-        if (sortOrderPref.equals(getString(R.string.pref_sortOrder_topRated_value))) {
+        if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
             sortOrder = MoviesContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
         }
         Uri uri = MoviesContract.MovieEntry.CONTENT_URI;

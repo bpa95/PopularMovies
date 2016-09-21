@@ -9,7 +9,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static boolean mTwoPaneMode;
+
+    public static final String PREF_SORT_ORDER = "pref_sort_order";
+    public static final int PREF_SORT_BY_POPULARITY = 0;
+    public static final int PREF_SORT_BY_RATING = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,19 +58,26 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
         return true;
     }
 
+    private void changeSortOrder(int sortOrder) {
+        getPreferences(MODE_PRIVATE).edit()
+                .putInt(PREF_SORT_ORDER, sortOrder)
+                .apply();
+        // TODO: update MoviesGridView
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (id) {
+            case R.id.menu_sort_popularity:
+                changeSortOrder(PREF_SORT_BY_POPULARITY);
+                return true;
+            case R.id.menu_sort_top_rated:
+                changeSortOrder(PREF_SORT_BY_RATING);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

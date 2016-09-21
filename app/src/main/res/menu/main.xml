@@ -15,11 +15,14 @@
         android:orderInCategory="2"
         android:title="@string/change_sort_order"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_sort_white_24dp"/>
-
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_sort_white_24dp">
+        <menu>
+            <item
+                android:id="@+id/menu_sort_popularity"
+                android:title="@string/pref_sortOrder_popular_entry"/>
+            <item
+                android:id="@+id/menu_sort_top_rated"
+                android:title="@string/pref_sortOrder_topRated_entry"/>
+        </menu>
+    </item>
 </menu>
