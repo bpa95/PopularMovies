@@ -75,7 +75,6 @@ public class TestDb extends AndroidTestCase {
         locationColumnHashSet.add(MovieEntry.COLUMN_POPULARITY);
         locationColumnHashSet.add(MovieEntry.COLUMN_VOTE_AVERAGE);
         locationColumnHashSet.add(MovieEntry.COLUMN_OVERVIEW);
-        locationColumnHashSet.add(MovieEntry.COLUMN_FAVORITE);
 
 
         int columnNameIndex = c.getColumnIndex("name");
@@ -100,7 +99,6 @@ public class TestDb extends AndroidTestCase {
         cv.put(MovieEntry.COLUMN_POPULARITY, 9.9); // TODO check 10.0
         cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 9.3);
         cv.put(MovieEntry.COLUMN_OVERVIEW, "Awesome movie");
-        cv.put(MovieEntry.COLUMN_FAVORITE, 1);
         return cv;
     }
 
@@ -113,7 +111,6 @@ public class TestDb extends AndroidTestCase {
         cv.put(MovieEntry.COLUMN_POPULARITY, 1.2); // TODO check 10.0
         cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, 1.3);
         cv.put(MovieEntry.COLUMN_OVERVIEW, "Not awesome movie");
-        cv.put(MovieEntry.COLUMN_FAVORITE, 0);
         return cv;
     }
 

@@ -4,12 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 
 public class MovieDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -41,13 +42,23 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +
                 " );";
 
+        final String SQL_CREATE_FAVORITE_TABLE = "CREATE TABLE " + FavoriteEntry.TABLE_NAME + " (" +
+                FavoriteEntry._ID + " INTEGER PRIMARY KEY, " +
+                FavoriteEntry.COLUMN_FAVORITE_ID + " INTEGER NOT NULL, " +
+
+                " FOREIGN KEY (" + FavoriteEntry.COLUMN_FAVORITE_ID + ") REFERENCES " +
+                FavoriteEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +
+                " );";
+
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_TRAILER_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TrailerEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FavoriteEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }

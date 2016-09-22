@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 
 public class MovieProvider extends ContentProvider {
 
@@ -21,12 +22,14 @@ public class MovieProvider extends ContentProvider {
     private static final String LOG_TAG = MovieProvider.class.getSimpleName();
     private MovieDbHelper mOpenHelper;
 
-    static final int MOVIE = 100;
-    static final int MOVIE_ITEM = 102;
-    static final int TRAILER = 200;
-    static final int TRAILERS_BY_MOVIE = 201;
+    public static final int MOVIE = 100;
+    public static final int MOVIE_ITEM = 102;
+    public static final int TRAILER = 200;
+    public static final int TRAILERS_BY_MOVIE = 201;
+    public static final int FAVORITE = 300;
 
     private static final SQLiteQueryBuilder sTrailersByMovieQueryBuilder;
+    private static final SQLiteQueryBuilder sFavoriteByMovieQueryBuilder;
 
     static {
         sTrailersByMovieQueryBuilder = new SQLiteQueryBuilder();
@@ -40,6 +43,18 @@ public class MovieProvider extends ContentProvider {
                         "." + TrailerEntry.COLUMN_ID_MOVIE +
                         " = " + MovieEntry.TABLE_NAME +
                         "." + MovieEntry._ID);
+
+        sFavoriteByMovieQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //movie INNER JOIN favorite ON favorite.favorite_id = movie._id
+        sFavoriteByMovieQueryBuilder.setTables(
+                MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        FavoriteEntry.TABLE_NAME +
+                        " ON " + FavoriteEntry.TABLE_NAME +
+                        "." + FavoriteEntry.COLUMN_FAVORITE_ID +
+                        " = " + MovieEntry.TABLE_NAME +
+                        "." + MovieEntry._ID);
     }
 
 
@@ -51,6 +66,7 @@ public class MovieProvider extends ContentProvider {
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE + "/#", MOVIE_ITEM);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER, TRAILER);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER + "/#", TRAILERS_BY_MOVIE);
+        uriMatcher.addURI(authority, MoviesContract.PATH_FAVORITE, FAVORITE);
 
         return uriMatcher;
     }
@@ -111,6 +127,17 @@ public class MovieProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+            case FAVORITE:
+                retCursor = sFavoriteByMovieQueryBuilder.query(
+                        mOpenHelper.getReadableDatabase(),
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri:" + uri);
         }
@@ -158,7 +185,16 @@ public class MovieProvider extends ContentProvider {
             case TRAILER: {
                 long _id = db.insert(TrailerEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
-                    returnUri = MovieEntry.buildMovieUri(_id);
+                    returnUri = TrailerEntry.buildTrailerUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
+            case FAVORITE: {
+                long _id = db.insert(FavoriteEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0) {
+                    returnUri = FavoriteEntry.buildFavoriteUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }

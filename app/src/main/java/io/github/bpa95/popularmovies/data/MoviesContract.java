@@ -16,6 +16,7 @@ public class MoviesContract {
 
     public static final String PATH_MOVIE = "movie";
     public static final String PATH_TRAILER = "trailer";
+    public static final String PATH_FAVORITE = "favorite";
 
 
     public static final class MovieEntry implements BaseColumns {
@@ -96,6 +97,27 @@ public class MoviesContract {
 
         public static String getMovieIdFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
+        }
+    }
+
+    public static final class FavoriteEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITE).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE;
+
+        public static final String TABLE_NAME = "favorite";
+
+        /**
+         * Foreign key into the movie table
+         */
+        public static final String COLUMN_FAVORITE_ID = "favorite_id";
+
+        public static Uri buildFavoriteUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 }
