@@ -181,7 +181,6 @@ class FetchMoviesTask extends AsyncTask<String, Void, Void> {
                 cv.put(MovieEntry.COLUMN_POPULARITY, movie.popularity);
                 cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, movie.voteAverage);
                 cv.put(MovieEntry.COLUMN_OVERVIEW, movie.overview);
-                cv.put(MovieEntry.COLUMN_FAVORITE, movie.favorite);
 
                 cvArray[i] = cv;
             }

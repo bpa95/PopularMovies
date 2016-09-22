@@ -125,15 +125,19 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         if (id != LOADER_ID) {
             return null;
         }
-
         SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+        Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
+
+        // TODO deal with favorite movies
+        boolean favorite = prefs.getBoolean(MainActivity.PREF_FAVORITE, false);
+
         int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
                 MainActivity.PREF_SORT_BY_POPULARITY);
         String sortOrder = MoviesContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
             sortOrder = MoviesContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
         }
-        Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
 
         return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
     }

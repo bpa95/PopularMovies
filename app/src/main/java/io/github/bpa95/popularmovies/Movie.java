@@ -22,7 +22,6 @@ public class Movie implements Parcelable {
     double popularity;
     double voteAverage;
     String overview;
-    int favorite;
 
     Movie() {
     }
@@ -44,7 +43,6 @@ public class Movie implements Parcelable {
         popularity = jsonMovie.getDouble(TMDB_POPULARITY);
         voteAverage = jsonMovie.getDouble(TMDB_VOTE_AVERAGE);
         overview = jsonMovie.getString(TMDB_OVERVIEW);
-        favorite = 0;
     }
 
     private Uri createPosterPath(String path) {
@@ -65,7 +63,6 @@ public class Movie implements Parcelable {
         popularity = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_POPULARITY));
         voteAverage = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE));
         overview = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
-        favorite = cursor.getInt(cursor.getColumnIndex(MovieEntry.COLUMN_FAVORITE));
     }
 
 
@@ -92,7 +89,6 @@ public class Movie implements Parcelable {
         popularity = in.readDouble();
         voteAverage = in.readDouble();
         overview = in.readString();
-        favorite = in.readInt();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -121,6 +117,5 @@ public class Movie implements Parcelable {
         parcel.writeDouble(popularity);
         parcel.writeDouble(voteAverage);
         parcel.writeString(overview);
-        parcel.writeInt(favorite);
     }
 }

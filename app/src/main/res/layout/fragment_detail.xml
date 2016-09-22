@@ -33,7 +33,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/movie_poster"
-                android:padding="10dp"/>
+                android:padding="10dp"
+                tools:src="@drawable/jurassic"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -54,6 +55,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:text="Rating:\n8.4/10" />
+
+                <Button
+                    android:id="@+id/mark_as_favorite_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mark_as_favorite"/>
             </LinearLayout>
         </LinearLayout>
 

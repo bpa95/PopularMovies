@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.stetho.Stetho;
+
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static boolean mTwoPaneMode;
@@ -23,6 +25,15 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // TODO remove before release
+        // Stetho.initializeWithDefaults(this);
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                .build()
+        );
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -67,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
         getPreferences(MODE_PRIVATE).edit()
                 .putInt(PREF_SORT_ORDER, sortOrder)
                 .apply();
+        updateGrid();
+    }
+
+    private void updateGrid() {
         ((MoviesGridFragment) getFragmentManager().findFragmentById(R.id.movies_grid_fragment))
                 .updateGrid();
     }
@@ -81,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
             prefs.edit().putBoolean(PREF_FAVORITE, true).apply();
             setIcon(item, true);
         }
+        updateGrid();
     }
 
     private void setIcon(MenuItem item, boolean isFavorite) {

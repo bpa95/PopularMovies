@@ -2,6 +2,7 @@ package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -31,10 +32,20 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private Uri mUri;
 
+    private boolean mFavorite;
+
+    private final View.OnClickListener favoriteListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        view.findViewById(R.id.mark_as_favorite_button).setOnClickListener(favoriteListener);
+        return view;
     }
 
     @Override
@@ -50,13 +61,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         super.onActivityCreated(savedInstanceState);
     }
 
-    private final String[] MOVIE_COLUMNS = new String[] {
+    private final String[] MOVIE_COLUMNS = new String[]{
             MovieEntry.COLUMN_MOVIE_ID,
             MovieEntry.COLUMN_TITLE,
             MovieEntry.COLUMN_RELEASE_DATE,
             MovieEntry.COLUMN_VOTE_AVERAGE,
             MovieEntry.COLUMN_OVERVIEW,
-            MovieEntry.COLUMN_POSTER_PATH
+            MovieEntry.COLUMN_POSTER_PATH,
     };
 
     // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
@@ -77,7 +88,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 null,
                 null,
                 null
-                );
+        );
     }
 
     @Override

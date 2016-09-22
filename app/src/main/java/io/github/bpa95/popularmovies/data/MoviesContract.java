@@ -58,19 +58,11 @@ public class MoviesContract {
          * Synopsis of the movie
          */
         public static final String COLUMN_OVERVIEW = "overview";
-        /**
-         * Boolean column, true if movie is marked as favorite, false - otherwise
-         */
-        public static final String COLUMN_FAVORITE = "favorite";
 
         public static final String PARAM_SORT_BY = "sort_by";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        public static Uri buildMovieFavorite() {
-            return CONTENT_URI.buildUpon().appendPath(COLUMN_FAVORITE).build();
         }
     }
 
