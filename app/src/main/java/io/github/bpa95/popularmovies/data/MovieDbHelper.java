@@ -31,7 +31,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL,  " +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL,  " +
 
-                " UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
+                // TODO don't ignore
+                " UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT IGNORE);";
 
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY, " +

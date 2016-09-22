@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import io.github.bpa95.popularmovies.data.MoviesContract;
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 /**
  * A fragment containing the grid view of movies.
@@ -111,8 +112,8 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     }
 
     private static final String[] MOVIE_COLUMNS = new String[]{
-            MoviesContract.MovieEntry._ID,
-            MoviesContract.MovieEntry.COLUMN_POSTER_PATH
+            MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
+            MovieEntry.COLUMN_POSTER_PATH
     };
 
     // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
@@ -129,8 +130,10 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
         Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
 
-        // TODO deal with favorite movies
         boolean favorite = prefs.getBoolean(MainActivity.PREF_FAVORITE, false);
+        if (favorite) {
+            uri = MoviesContract.FavoriteEntry.CONTENT_URI;
+        }
 
         int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
                 MainActivity.PREF_SORT_BY_POPULARITY);

@@ -2,6 +2,7 @@ package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -20,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 
+import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -37,6 +39,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private final View.OnClickListener favoriteListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            ContentValues cv = new ContentValues();
+            cv.put(FavoriteEntry.COLUMN_FAVORITE_ID, ContentUris.parseId(mUri));
+            getActivity().getContentResolver().insert(FavoriteEntry.CONTENT_URI, cv);
         }
     };
 
