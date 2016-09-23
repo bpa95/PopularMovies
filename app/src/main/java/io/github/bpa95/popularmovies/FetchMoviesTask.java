@@ -1,7 +1,9 @@
 package io.github.bpa95.popularmovies;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -184,8 +186,35 @@ class FetchMoviesTask extends AsyncTask<String, Void, Void> {
 
                 cvArray[i] = cv;
             }
-            if (cvArray.length > 0) {
-                mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
+//            if (cvArray.length > 0) {
+//                mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
+//            }
+            ContentResolver cr = mContext.getContentResolver();
+            String[] projection = new String[]{MovieEntry.COLUMN_MOVIE_ID};
+            String selection = MovieEntry.COLUMN_MOVIE_ID + " = ?";
+            for (ContentValues cv : cvArray) {
+                String[] selectionArgs = new String[]{cv.getAsString(MovieEntry.COLUMN_MOVIE_ID)};
+                Cursor cursor = cr.query(
+                        MovieEntry.CONTENT_URI,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+                if (cursor == null) {
+                    continue;
+                }
+                if (!cursor.moveToFirst()) {
+                    cr.insert(MovieEntry.CONTENT_URI, cv);
+                } else {
+                    cr.update(
+                            MovieEntry.CONTENT_URI,
+                            cv,
+                            selection,
+                            selectionArgs
+                    );
+                }
+                cursor.close();
             }
 
             return null;
