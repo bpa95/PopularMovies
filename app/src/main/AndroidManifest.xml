@@ -40,6 +40,10 @@
             android:name=".data.MovieProvider"
             android:authorities="io.github.bpa95.popularmovies"
             android:exported="false" />
+
+        <service
+            android:name=".service.MovieIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
