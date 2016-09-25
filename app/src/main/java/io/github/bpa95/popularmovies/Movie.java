@@ -15,18 +15,18 @@ import java.util.Locale;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 public class Movie implements Parcelable {
-    int id;
-    Uri posterPath;
-    String title;
-    String releaseDate;
-    double popularity;
-    double voteAverage;
-    String overview;
+    public int id;
+    public Uri posterPath;
+    public String title;
+    public String releaseDate;
+    public double popularity;
+    public double voteAverage;
+    public String overview;
 
     Movie() {
     }
 
-    Movie(JSONObject jsonMovie) throws JSONException {
+    public Movie(JSONObject jsonMovie) throws JSONException {
         // These are the names of the JSON objects that need to be extracted
         final String TMDB_MOVIE_ID = "id";
         final String TMDB_POSTER_PATH = "poster_path";

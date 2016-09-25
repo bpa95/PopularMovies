@@ -18,6 +18,7 @@ import android.widget.GridView;
 
 import io.github.bpa95.popularmovies.data.MoviesContract;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
+import io.github.bpa95.popularmovies.service.MovieIntentService;
 
 /**
  * A fragment containing the grid view of movies.
@@ -107,7 +108,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
             sortOrder = getString(R.string.pref_sortOrder_topRated_value);
         }
-        new FetchMoviesTask(getActivity()).execute(sortOrder);
+        MovieIntentService.loadMovies(getActivity(), sortOrder);
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
