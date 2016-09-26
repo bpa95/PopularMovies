@@ -1,5 +1,6 @@
 package io.github.bpa95.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -10,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
+
+import io.github.bpa95.popularmovies.service.MovieIntentService;
 
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -120,6 +123,15 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
                 return true;
             case R.id.action_favorite:
                 changeFavoriteState(item);
+                return true;
+            case R.id.action_refresh:
+                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                int sortOrderPref = prefs.getInt(PREF_SORT_ORDER, PREF_SORT_BY_POPULARITY);
+                String sortOrder = getString(R.string.pref_sortOrder_popular_value);
+                if (sortOrderPref == PREF_SORT_BY_RATING) {
+                    sortOrder = getString(R.string.pref_sortOrder_topRated_value);
+                }
+                MovieIntentService.loadMovies(this, sortOrder);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -38,7 +38,11 @@
 
         <service
             android:name=".service.MovieIntentService"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <receiver
+            android:name=".service.MovieIntentService$AlarmReceiver"
+            android:enabled="true" />
     </application>
 
 </manifest>

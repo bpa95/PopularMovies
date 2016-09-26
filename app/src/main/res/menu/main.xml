@@ -25,4 +25,11 @@
                 android:title="@string/pref_sortOrder_topRated_entry"/>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="3"
+        android:title="@string/refresh"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_refresh_white_24dp"/>
 </menu>

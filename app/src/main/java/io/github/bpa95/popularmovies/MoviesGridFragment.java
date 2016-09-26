@@ -1,15 +1,20 @@
 package io.github.bpa95.popularmovies;
 
+import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +66,7 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
+        updateData();
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -97,10 +103,11 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         outState.putInt(SELECTED_KEY, mPosition);
     }
 
-    /**
-     * Fills grid view with posters of movies fetched from server.
-     */
     public void updateGrid() {
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
+
+    public void updateData() {
         SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
                 MainActivity.PREF_SORT_BY_POPULARITY);
@@ -108,8 +115,17 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
         if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
             sortOrder = getString(R.string.pref_sortOrder_topRated_value);
         }
-        MovieIntentService.loadMovies(getActivity(), sortOrder);
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+
+        AlarmManager alarmMgr = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getActivity(), MovieIntentService.AlarmReceiver.class);
+        intent.putExtra(MovieIntentService.AlarmReceiver.EXTRA_SORT_ORDER, sortOrder);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, 0);
+
+
+        // TODO Use SyncAdapter instead
+        Log.d(LOG_TAG, "Updating grid");
+        alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 
     private static final String[] MOVIE_COLUMNS = new String[]{

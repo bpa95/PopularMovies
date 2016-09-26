@@ -1,6 +1,7 @@
 package io.github.bpa95.popularmovies.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -247,5 +248,17 @@ public class MovieIntentService extends IntentService {
         Log.v(LOG_TAG, builtUri.toString());
 
         return new URL(builtUri.toString());
+    }
+
+    public static class AlarmReceiver extends BroadcastReceiver {
+        public static final String EXTRA_SORT_ORDER = "io.github.bpa95.popularmovies.service.AlarmReceiver.extra.SORT_ORDER";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Service starting");
+            String sortOrder = intent.getStringExtra(EXTRA_SORT_ORDER);
+            MovieIntentService.loadMovies(context, sortOrder);
+            Log.d(LOG_TAG, "Service started");
+        }
     }
 }
