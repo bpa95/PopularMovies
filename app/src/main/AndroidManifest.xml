@@ -30,19 +30,28 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
         <provider
             android:name=".data.MovieProvider"
             android:authorities="io.github.bpa95.popularmovies"
             android:exported="false" />
-
         <service
             android:name=".service.MovieIntentService"
             android:exported="false" />
-
         <receiver
             android:name=".service.MovieIntentService$AlarmReceiver"
             android:enabled="true" />
+
+        <!-- SyncAdapter's dummy authentication service -->
+        <service
+            android:name=".sync.AuthenticatorService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
     </application>
 
 </manifest>

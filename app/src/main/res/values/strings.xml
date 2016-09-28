@@ -17,6 +17,7 @@
     <string name="change_sort_order">Change sort order</string>
     <string name="mark_as_favorite">Mark as Favorite</string>
     <string name="refresh">Refresh</string>
+    <string name="sync_account_type">bpa95.github.io</string>
 
     <string-array name="pref_sortOrder_entries">
         <item>@string/pref_sortOrder_popular_entry</item>
