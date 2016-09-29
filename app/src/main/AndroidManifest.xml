@@ -40,12 +40,6 @@
             android:authorities="@string/content_authority"
             android:exported="false"
             android:syncable="true"/>
-        <service
-            android:name=".service.MovieIntentService"
-            android:exported="false" />
-        <receiver
-            android:name=".service.MovieIntentService$AlarmReceiver"
-            android:enabled="true" />
 
         <!-- SyncAdapter's dummy authentication service -->
         <service

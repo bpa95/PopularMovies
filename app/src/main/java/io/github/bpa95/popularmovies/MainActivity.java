@@ -1,6 +1,5 @@
 package io.github.bpa95.popularmovies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -12,17 +11,19 @@ import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
 
-import io.github.bpa95.popularmovies.service.MovieIntentService;
+import io.github.bpa95.popularmovies.sync.SyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static boolean mTwoPaneMode;
 
-    public static final String PREF_SORT_ORDER = "pref_sort_order";
+    public static final String PREF_SORT_ORDER = "io.github.bpa95.popularmovies.PREF_SORT_ORDER";
     public static final int PREF_SORT_BY_POPULARITY = 0;
     public static final int PREF_SORT_BY_RATING = 1;
 
-    public static final String PREF_FAVORITE = "pref_favorite";
+    public static final String PREF_FAVORITE = "io.github.bpa95.popularmovies.PREF_FAVORITE";
+
+    public static final String PREFS_NAME = "io.github.bpa95.popularmovies.PREFS_NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +74,12 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem item = menu.findItem(R.id.action_favorite);
-        setIcon(item, getPreferences(MODE_PRIVATE).getBoolean(PREF_FAVORITE, false));
+        setIcon(item, getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(PREF_FAVORITE, false));
         return true;
     }
 
     private void changeSortOrder(int sortOrder) {
-        getPreferences(MODE_PRIVATE).edit()
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
                 .putInt(PREF_SORT_ORDER, sortOrder)
                 .apply();
         updateGrid();
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
     }
 
     private void changeFavoriteState(MenuItem item) {
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isFavorite = prefs.getBoolean(PREF_FAVORITE, false);
         if (isFavorite) {
             prefs.edit().putBoolean(PREF_FAVORITE, false).apply();
@@ -125,13 +126,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
                 changeFavoriteState(item);
                 return true;
             case R.id.action_refresh:
-                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-                int sortOrderPref = prefs.getInt(PREF_SORT_ORDER, PREF_SORT_BY_POPULARITY);
-                String sortOrder = getString(R.string.pref_sortOrder_popular_value);
-                if (sortOrderPref == PREF_SORT_BY_RATING) {
-                    sortOrder = getString(R.string.pref_sortOrder_topRated_value);
-                }
-                MovieIntentService.loadMovies(this, sortOrder);
+                SyncAdapter.syncImmediately(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
