@@ -8,9 +8,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -40,6 +42,11 @@ import io.github.bpa95.popularmovies.data.MoviesContract;
  */
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String LOG_TAG = SyncAdapter.class.getSimpleName();
+    private static final long MINUTE = 60L;
+    private static final long HOUR = 60 * MINUTE;
+    private static final long SYNC_INTERVAL = 24 * HOUR;
+//    private static final long SYNC_INTERVAL = 24 * HOUR;
+    private static final long SYNC_FLEXTIME = SYNC_INTERVAL / 3;
     ContentResolver mContentResolver;
 
     private static final String EXTRA_SORT_ORDER = "io.github.bpa95.popularmovies.sync.extra.SORT_ORDER";
@@ -56,7 +63,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             // Construct the URL for the Movie Database query
-            String sortOrder = extras.getString(EXTRA_SORT_ORDER);
+            String sortOrder = getContext().getString(R.string.pref_sortOrder_popular_value);
             URL url = constructUrl(sortOrder);
 
             // Create the request to TheMovieDatabase, and open the connection
@@ -187,17 +194,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
      * Constructs the URL for the Movie Database query, which contains the json object
      * with movie data. Movies will be in order specified by parameter.
      *
-     * @param SORT_ORDER part of path which specify sort order
+     * @param sortOrder part of path which specify sort order
      * @return correct url to The Movie Database from which the json object with movie data can be fetched
      * @throws MalformedURLException should never happen
      */
     @NonNull
-    private URL constructUrl(final String SORT_ORDER) throws MalformedURLException {
+    private URL constructUrl(final String sortOrder) throws MalformedURLException {
         final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
         final String API_KEY_PARAM = "api_key";
 
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                .appendEncodedPath(SORT_ORDER)
+                .appendEncodedPath(sortOrder)
                 .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
                 .build();
 
@@ -218,6 +225,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         Account account = getSyncAccount(context);
         final String authority = context.getString(R.string.content_authority);
+        bundle.putString(EXTRA_SORT_ORDER, getSortOrder(context));
+        ContentResolver.requestSync(account, authority, bundle);
+        Log.d(LOG_TAG, "syncImmediately finished.");
+    }
+
+    private static String getSortOrder(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE);
         int sortOrderPref = prefs.getInt(MainActivity.PREF_SORT_ORDER,
                 MainActivity.PREF_SORT_BY_POPULARITY);
@@ -225,9 +238,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         if (sortOrderPref == MainActivity.PREF_SORT_BY_RATING) {
             sortOrder = context.getString(R.string.pref_sortOrder_topRated_value);
         }
-        bundle.putString(EXTRA_SORT_ORDER, sortOrder);
-        ContentResolver.requestSync(account, authority, bundle);
-        Log.d(LOG_TAG, "syncImmediately finished.");
+        return sortOrder;
     }
 
     /**
@@ -247,10 +258,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Account newAccount = new Account(
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
-        Log.d(LOG_TAG, "getSyncAccount outside if");
         // If the password doesn't exist, the account doesn't exist
         if (null == accountManager.getPassword(newAccount)) {
-            Log.d(LOG_TAG, "getSyncAccount inside if");
 
             /*
              * Add the account and account type, no password or user data
@@ -267,8 +276,45 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
              * here.
              */
 
+            onAccountCreated(newAccount, context);
         }
-        Log.d(LOG_TAG, "getSyncAccount return newAccount");
         return newAccount;
+    }
+
+    /**
+     * Helper method to schedule the sync adapter periodic execution
+     */
+    public static void configurePeriodicSync(Context context, long syncInterval, long flexTime) {
+        Account account = getSyncAccount(context);
+        String authority = context.getString(R.string.content_authority);
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_SORT_ORDER, getSortOrder(context));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).
+                    setExtras(bundle).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, bundle, syncInterval);
+        }
+    }
+
+
+    private static void onAccountCreated(Account newAccount, Context context) {
+        // Since we've created an account
+        configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+
+        // Without calling setSyncAutomatically, our periodic sync will not be enabled.
+        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
+
+        // Finally, let's do a sync to get things started
+        syncImmediately(context);
+    }
+
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 }

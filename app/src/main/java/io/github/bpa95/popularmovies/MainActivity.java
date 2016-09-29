@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
                     .replace(R.id.movie_detail_container, new DetailFragment())
                     .commit();
         }
+
+        SyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override

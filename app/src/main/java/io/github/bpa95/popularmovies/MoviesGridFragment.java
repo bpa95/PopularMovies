@@ -18,7 +18,6 @@ import android.widget.GridView;
 
 import io.github.bpa95.popularmovies.data.MoviesContract;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
-import io.github.bpa95.popularmovies.sync.SyncAdapter;
 
 /**
  * A fragment containing the grid view of movies.
@@ -61,7 +60,6 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
-        updateData();
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -100,10 +98,6 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
     public void updateGrid() {
         getLoaderManager().restartLoader(LOADER_ID, null, this);
-    }
-
-    public void updateData() {
-        SyncAdapter.syncImmediately(getActivity());
     }
 
     private static final String[] MOVIE_COLUMNS = new String[]{
