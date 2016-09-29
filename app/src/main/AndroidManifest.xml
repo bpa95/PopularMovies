@@ -50,7 +50,7 @@
         <!-- SyncAdapter's dummy authentication service -->
         <service
             android:name=".sync.AuthenticatorService"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
@@ -60,8 +60,8 @@
         </service>
         <service
             android:name=".sync.SyncService"
-            android:exported="true"
-            android:process=":sync">
+            android:exported="true">
+            <!-- android:process=":sync" -->
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>

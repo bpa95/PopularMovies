@@ -40,8 +40,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(getSyncAccount(context),
-                context.getString(R.string.content_authority), bundle);
+        Account account = getSyncAccount(context);
+        final String authority = context.getString(R.string.content_authority);
+        ContentResolver.requestSync(account, authority, bundle);
+        Log.d(LOG_TAG, "syncImmediately finished.");
     }
 
     /**
