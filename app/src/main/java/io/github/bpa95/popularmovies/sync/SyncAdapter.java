@@ -5,12 +5,10 @@ import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -19,15 +17,10 @@ import android.util.Log;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import io.github.bpa95.popularmovies.MainActivity;
 import io.github.bpa95.popularmovies.Movie;
 import io.github.bpa95.popularmovies.R;
-import io.github.bpa95.popularmovies.data.MoviesContract;
-
-import static io.github.bpa95.popularmovies.Movie.getJsonString;
 
 /**
  * Handle the transfer of data between a server and an
@@ -51,74 +44,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        HttpURLConnection urlConnection = null;
-        Log.d(LOG_TAG, "onPerformSync called");
-
         try {
-            // Construct the URL for the Movie Database query
-            String sortOrder = getContext().getString(R.string.pref_sortOrder_popular_value);
-            URL url = Movie.constructUrl(sortOrder);
-
-            // Create the request to TheMovieDatabase, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            Movie[] movies = Movie.getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
-
-            ContentValues[] cvArray = new ContentValues[movies.length];
-            for (int i = 0; i < movies.length; i++) {
-                Movie movie = movies[i];
-                ContentValues cv = new ContentValues();
-                cv.put(MoviesContract.MovieEntry.COLUMN_MOVIE_ID, movie.id);
-                cv.put(MoviesContract.MovieEntry.COLUMN_POSTER_PATH, movie.posterPath.toString());
-                cv.put(MoviesContract.MovieEntry.COLUMN_TITLE, movie.title);
-                cv.put(MoviesContract.MovieEntry.COLUMN_RELEASE_DATE, movie.releaseDate);
-                cv.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movie.popularity);
-                cv.put(MoviesContract.MovieEntry.COLUMN_VOTE_AVERAGE, movie.voteAverage);
-                cv.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movie.overview);
-
-                cvArray[i] = cv;
-            }
-//            if (cvArray.length > 0) {
-//                mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
-//            }
-            String[] projection = new String[]{MoviesContract.MovieEntry.COLUMN_MOVIE_ID};
-            String selection = MoviesContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
-            for (ContentValues cv : cvArray) {
-                String[] selectionArgs = new String[]{cv.getAsString(MoviesContract.MovieEntry.COLUMN_MOVIE_ID)};
-                Cursor cursor = provider.query(
-                        MoviesContract.MovieEntry.CONTENT_URI,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null
-                );
-                if (cursor == null) {
-                    continue;
-                }
-                if (!cursor.moveToFirst()) {
-                    provider.insert(MoviesContract.MovieEntry.CONTENT_URI, cv);
-                } else {
-                    provider.update(
-                            MoviesContract.MovieEntry.CONTENT_URI,
-                            cv,
-                            selection,
-                            selectionArgs
-                    );
-                }
-                cursor.close();
-            }
+            Movie.transferMoviesFromServerToLocalDb(getContext(), provider);
         } catch (IOException | JSONException | RemoteException e) {
             Log.e(LOG_TAG, "Error ", e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
         }
     }
-
-
 
     /**
      * Helper method to have the sync adapter sync immediately

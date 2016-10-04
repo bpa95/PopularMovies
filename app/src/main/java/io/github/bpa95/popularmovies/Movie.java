@@ -1,9 +1,13 @@
 package io.github.bpa95.popularmovies;
 
+import android.content.ContentProviderClient;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -15,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -75,6 +80,69 @@ public class Movie implements Parcelable {
         overview = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
     }
 
+    public static void transferMoviesFromServerToLocalDb(Context context, ContentProviderClient provider)
+            throws RemoteException, IOException, JSONException {
+        HttpURLConnection urlConnection = null;
+
+        String sortOrder = context.getString(R.string.pref_sortOrder_popular_value);
+        URL url = Movie.constructUrl(sortOrder);
+
+        try {
+            // Create the request to TheMovieDatabase, and open the connection
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            Movie[] movies = getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
+
+            for (Movie movie : movies) {
+                movie.insertMovieInDb(provider);
+            }
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
+    private static final String[] projection = new String[]{MovieEntry.COLUMN_MOVIE_ID};
+    private static final String selection = MovieEntry.COLUMN_MOVIE_ID + " = ?";
+    private static final String[] selectionArgs = new String[1];
+
+    private void insertMovieInDb(ContentProviderClient provider) throws RemoteException {
+        ContentValues cv = new ContentValues();
+        cv.put(MovieEntry.COLUMN_MOVIE_ID, id);
+        cv.put(MovieEntry.COLUMN_POSTER_PATH, posterPath.toString());
+        cv.put(MovieEntry.COLUMN_TITLE, title);
+        cv.put(MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+        cv.put(MovieEntry.COLUMN_POPULARITY, popularity);
+        cv.put(MovieEntry.COLUMN_VOTE_AVERAGE, voteAverage);
+        cv.put(MovieEntry.COLUMN_OVERVIEW, overview);
+
+        selectionArgs[0] = cv.getAsString(MovieEntry.COLUMN_MOVIE_ID);
+        Cursor cursor = provider.query(
+                MovieEntry.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+        );
+        if (cursor == null) {
+            return;
+        }
+        if (!cursor.moveToFirst()) {
+            provider.insert(MovieEntry.CONTENT_URI, cv);
+        } else {
+            provider.update(
+                    MovieEntry.CONTENT_URI,
+                    cv,
+                    selection,
+                    selectionArgs
+            );
+        }
+        cursor.close();
+    }
+
     /**
      * Extracts movie data from json string and returns array of movies with this data.
      *
@@ -83,7 +151,7 @@ public class Movie implements Parcelable {
      * @throws JSONException if passed string is not appropriate json string
      * @throws IOException   if passed string is null or empty
      */
-    public static Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException, IOException {
+    private static Movie[] getMovieDataFromJson(String moviesJsonStr) throws JSONException, IOException {
         if (moviesJsonStr == null || moviesJsonStr.isEmpty()) {
             throw new IOException("Empty json");
         }
@@ -111,7 +179,7 @@ public class Movie implements Parcelable {
      * @throws MalformedURLException should never happen
      */
     @NonNull
-    public static URL constructUrl(final String sortOrder) throws MalformedURLException {
+    private static URL constructUrl(final String sortOrder) throws MalformedURLException {
         final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
         final String API_KEY_PARAM = "api_key";
 
@@ -133,7 +201,7 @@ public class Movie implements Parcelable {
      * @return json string read from given stream
      * @throws IOException in case of errors in input stream
      */
-    public static String getJsonString(InputStream inputStream) throws IOException {
+    private static String getJsonString(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
         }
