@@ -2,6 +2,7 @@ package io.github.bpa95.popularmovies;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -34,14 +35,28 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private Uri mUri;
 
-    private boolean mFavorite;
-
     private final View.OnClickListener favoriteListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ContentValues cv = new ContentValues();
-            cv.put(FavoriteEntry.COLUMN_FAVORITE_ID, ContentUris.parseId(mUri));
-            getActivity().getContentResolver().insert(FavoriteEntry.CONTENT_URI, cv);
+            ContentResolver cr = getActivity().getContentResolver();
+            Cursor cursor = cr.query(
+                    FavoriteEntry.CONTENT_URI,
+                    null,
+                    FavoriteEntry.COLUMN_FAVORITE_ID + " = ?",
+                    new String[]{Long.toString(ContentUris.parseId(mUri))},
+                    null
+            );
+            if (cursor != null && cursor.moveToFirst()) {
+                cr.delete(FavoriteEntry.CONTENT_URI, FavoriteEntry.COLUMN_FAVORITE_ID + " = ?",
+                        new String[]{Long.toString(ContentUris.parseId(mUri))});
+            } else {
+                ContentValues cv = new ContentValues();
+                cv.put(FavoriteEntry.COLUMN_FAVORITE_ID, ContentUris.parseId(mUri));
+                cr.insert(FavoriteEntry.CONTENT_URI, cv);
+            }
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     };
 
