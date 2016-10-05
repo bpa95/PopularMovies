@@ -10,7 +10,7 @@ import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 
 public class MovieDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -36,7 +36,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
                 TrailerEntry.COLUMN_ID_MOVIE + " INTEGER NOT NULL, " +
-                TrailerEntry.COLUMN_TRAILER_PATH + " TEXT NOT NULL, " +
+                TrailerEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+                TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
 
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_ID_MOVIE + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +

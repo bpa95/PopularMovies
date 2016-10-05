@@ -38,6 +38,11 @@ public class Movie implements Parcelable {
     public double voteAverage;
     public String overview;
 
+    private static final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
+    private static final String MOVIE_PATH = "movie";
+    private static final String VIDEOS_PATH = "videos";
+    private static final String API_KEY_PARAM = "api_key";
+
     Movie() {
     }
 
@@ -88,21 +93,86 @@ public class Movie implements Parcelable {
         URL url = Movie.constructUrl(sortOrder);
 
         try {
-            // Create the request to TheMovieDatabase, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
+            urlConnection = performConnection(url);
 
             Movie[] movies = getMovieDataFromJson(getJsonString(urlConnection.getInputStream()));
 
             for (Movie movie : movies) {
                 movie.insertMovieInDb(provider);
+                movie.downloadAndInsertTrailersInDb(provider);
+                movie.downloadAndInsertReviewsInDb(provider);
             }
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
+    }
+
+    private static HttpURLConnection performConnection(URL url) throws IOException {
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("GET");
+        urlConnection.connect();
+        return urlConnection;
+    }
+
+
+
+    private Trailer[] getTrailersDataFromJson(String trailerJsonStr) throws IOException, JSONException {
+        if (trailerJsonStr == null || trailerJsonStr.isEmpty()) {
+            throw new IOException("Empty json");
+        }
+
+        final String TMDB_RESULTS = "results";
+
+        JSONArray trailersJson = new JSONObject(trailerJsonStr)
+                .getJSONArray(TMDB_RESULTS);
+
+        int length = trailersJson.length();
+        Trailer[] trailers = new Trailer[length];
+        for (int i = 0; i < length; i++) {
+            trailers[i] = new Trailer(trailersJson.getJSONObject(i), id);
+        }
+
+        return trailers;
+    }
+
+    private void downloadAndInsertTrailersInDb(ContentProviderClient provider) throws IOException {
+        HttpURLConnection urlConnection = null;
+
+        URL url = constructTrailerUrl();
+        try {
+            urlConnection = performConnection(url);
+
+            Trailer[] trailers = getTrailersDataFromJson(getJsonString(urlConnection.getInputStream()));
+
+            for (Trailer trailer : trailers) {
+                trailer.insertTrailerInDb(provider);
+            }
+        } catch (JSONException | RemoteException e) {
+            Log.e(LOG_TAG, "Error inserting trailer", e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
+    private URL constructTrailerUrl() throws MalformedURLException {
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                .appendEncodedPath(MOVIE_PATH)
+                .appendEncodedPath(Integer.toString(id))
+                .appendEncodedPath(VIDEOS_PATH)
+                .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
+                .build();
+
+        Log.v(LOG_TAG, builtUri.toString());
+
+        return new URL(builtUri.toString());
+    }
+
+    private void downloadAndInsertReviewsInDb(ContentProviderClient provider) {
+
     }
 
     private static final String[] projection = new String[]{MovieEntry.COLUMN_MOVIE_ID};
@@ -180,9 +250,6 @@ public class Movie implements Parcelable {
      */
     @NonNull
     private static URL constructUrl(final String sortOrder) throws MalformedURLException {
-        final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
-        final String API_KEY_PARAM = "api_key";
-
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
                 .appendEncodedPath(sortOrder)
                 .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)

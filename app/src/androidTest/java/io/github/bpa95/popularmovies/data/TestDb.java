@@ -140,7 +140,7 @@ public class TestDb extends AndroidTestCase {
     public static ContentValues createFakeTrailerValues(long rowId) {
         ContentValues cv = new ContentValues();
         cv.put(TrailerEntry.COLUMN_ID_MOVIE, rowId);
-        cv.put(TrailerEntry.COLUMN_TRAILER_PATH, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        cv.put(TrailerEntry.COLUMN_KEY, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         return cv;
     }
 
