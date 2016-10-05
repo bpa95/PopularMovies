@@ -12,9 +12,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
-import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.ReviewEntry;
+import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 
 public class MovieProvider extends ContentProvider {
 
@@ -27,8 +28,11 @@ public class MovieProvider extends ContentProvider {
     public static final int TRAILER = 200;
     public static final int TRAILERS_BY_MOVIE = 201;
     public static final int FAVORITE = 300;
+    public static final int REVIEW = 400;
+    public static final int REVIEWS_BY_MOVIE = 401;
 
     private static final SQLiteQueryBuilder sTrailersByMovieQueryBuilder;
+    private static final SQLiteQueryBuilder sReviewsByMovieQueryBuilder;
     private static final SQLiteQueryBuilder sFavoriteByMovieQueryBuilder;
 
     static {
@@ -41,6 +45,18 @@ public class MovieProvider extends ContentProvider {
                         TrailerEntry.TABLE_NAME +
                         " ON " + TrailerEntry.TABLE_NAME +
                         "." + TrailerEntry.COLUMN_ID_MOVIE +
+                        " = " + MovieEntry.TABLE_NAME +
+                        "." + MovieEntry._ID);
+
+        sReviewsByMovieQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //movie INNER JOIN review ON review.id_movie = movie._id
+        sTrailersByMovieQueryBuilder.setTables(
+                MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        ReviewEntry.TABLE_NAME +
+                        " ON " + ReviewEntry.TABLE_NAME +
+                        "." + ReviewEntry.COLUMN_ID_MOVIE +
                         " = " + MovieEntry.TABLE_NAME +
                         "." + MovieEntry._ID);
 
@@ -66,6 +82,8 @@ public class MovieProvider extends ContentProvider {
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE + "/#", MOVIE_ITEM);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER, TRAILER);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILER + "/#", TRAILERS_BY_MOVIE);
+        uriMatcher.addURI(authority, MoviesContract.PATH_REVIEW, REVIEW);
+        uriMatcher.addURI(authority, MoviesContract.PATH_REVIEW + "/#", REVIEWS_BY_MOVIE);
         uriMatcher.addURI(authority, MoviesContract.PATH_FAVORITE, FAVORITE);
 
         return uriMatcher;
@@ -127,6 +145,28 @@ public class MovieProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+            case REVIEW:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        ReviewEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case REVIEWS_BY_MOVIE:
+                retCursor = sReviewsByMovieQueryBuilder.query(
+                        mOpenHelper.getReadableDatabase(),
+                        projection,
+                        MovieEntry.COLUMN_MOVIE_ID + " = ?",
+                        new String[]{ReviewEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case FAVORITE:
                 retCursor = sFavoriteByMovieQueryBuilder.query(
                         mOpenHelper.getReadableDatabase(),
@@ -159,7 +199,10 @@ public class MovieProvider extends ContentProvider {
                 return MovieEntry.CONTENT_ITEM_TYPE;
             case TRAILER:
             case TRAILERS_BY_MOVIE:
-                return MoviesContract.TrailerEntry.CONTENT_TYPE;
+                return TrailerEntry.CONTENT_TYPE;
+            case REVIEW:
+            case REVIEWS_BY_MOVIE:
+                return ReviewEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -186,6 +229,15 @@ public class MovieProvider extends ContentProvider {
                 long _id = db.insert(TrailerEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
                     returnUri = TrailerEntry.buildTrailerUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
+            case REVIEW: {
+                long _id = db.insert(ReviewEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0) {
+                    returnUri = ReviewEntry.buildReviewUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -226,6 +278,10 @@ public class MovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(TrailerEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
+            case REVIEW: {
+                rowsDeleted = db.delete(ReviewEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -249,6 +305,10 @@ public class MovieProvider extends ContentProvider {
             }
             case TRAILER: {
                 rowsUpdated = db.update(TrailerEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            case REVIEW: {
+                rowsUpdated = db.update(ReviewEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             }
             default:

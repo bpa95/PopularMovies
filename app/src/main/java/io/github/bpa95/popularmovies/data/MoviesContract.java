@@ -16,6 +16,7 @@ public class MoviesContract {
 
     public static final String PATH_MOVIE = "movie";
     public static final String PATH_TRAILER = "trailer";
+    public static final String PATH_REVIEW = "review";
     public static final String PATH_FAVORITE = "favorite";
 
 
@@ -96,6 +97,51 @@ public class MoviesContract {
         }
 
         public static Uri buildTrailersByMovieIdUri(int movieId) {
+            return CONTENT_URI.buildUpon().appendPath(Integer.toString(movieId)).build();
+        }
+
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+    }
+
+    public static final class ReviewEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+
+        public static final String TABLE_NAME = "review";
+
+        /**
+         * Foreign key into the movie table
+         */
+        public static final String COLUMN_ID_MOVIE = "id_movie";
+        /**
+         * Review id
+         */
+        public static final String COLUMN_ID = "id";
+        /**
+         * Review author
+         */
+        public static final String COLUMN_AUTHOR = "author";
+        /**
+         * Review content
+         */
+        public static final String COLUMN_CONTENT = "content";
+        /**
+         * Review url
+         */
+        public static final String COLUMN_URL = "url";
+
+        public static Uri buildReviewUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildReviewsByMovieIdUri(int movieId) {
             return CONTENT_URI.buildUpon().appendPath(Integer.toString(movieId)).build();
         }
 

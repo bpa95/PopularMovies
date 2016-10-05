@@ -41,6 +41,7 @@ public class Movie implements Parcelable {
     private static final String MOVIES_BASE_URL = "http://api.themoviedb.org/3";
     private static final String MOVIE_PATH = "movie";
     private static final String VIDEOS_PATH = "videos";
+    private static final String REVIEWS_PATH = "reviews";
     private static final String API_KEY_PARAM = "api_key";
 
     Movie() {
@@ -117,7 +118,6 @@ public class Movie implements Parcelable {
     }
 
 
-
     private Trailer[] getTrailersDataFromJson(String trailerJsonStr) throws IOException, JSONException {
         if (trailerJsonStr == null || trailerJsonStr.isEmpty()) {
             throw new IOException("Empty json");
@@ -137,11 +137,30 @@ public class Movie implements Parcelable {
         return trailers;
     }
 
-    private void downloadAndInsertTrailersInDb(ContentProviderClient provider) throws IOException {
+    private Review[] getReviewsDataFromJson(String reviewJsonStr) throws IOException, JSONException {
+        if (reviewJsonStr == null || reviewJsonStr.isEmpty()) {
+            throw new IOException("Empty json");
+        }
+
+        final String TMDB_RESULTS = "results";
+
+        JSONArray reviewsJson = new JSONObject(reviewJsonStr)
+                .getJSONArray(TMDB_RESULTS);
+
+        int length = reviewsJson.length();
+        Review[] reviews = new Review[length];
+        for (int i = 0; i < length; i++) {
+            reviews[i] = new Review(reviewsJson.getJSONObject(i), id);
+        }
+
+        return reviews;
+    }
+
+    private void downloadAndInsertTrailersInDb(ContentProviderClient provider) {
         HttpURLConnection urlConnection = null;
 
-        URL url = constructTrailerUrl();
         try {
+            URL url = constructTrailerUrl();
             urlConnection = performConnection(url);
 
             Trailer[] trailers = getTrailersDataFromJson(getJsonString(urlConnection.getInputStream()));
@@ -149,7 +168,7 @@ public class Movie implements Parcelable {
             for (Trailer trailer : trailers) {
                 trailer.insertTrailerInDb(provider);
             }
-        } catch (JSONException | RemoteException e) {
+        } catch (JSONException | RemoteException | IOException e) {
             Log.e(LOG_TAG, "Error inserting trailer", e);
         } finally {
             if (urlConnection != null) {
@@ -171,8 +190,38 @@ public class Movie implements Parcelable {
         return new URL(builtUri.toString());
     }
 
-    private void downloadAndInsertReviewsInDb(ContentProviderClient provider) {
+    private URL constructReviewUrl() throws MalformedURLException {
+        Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                .appendEncodedPath(MOVIE_PATH)
+                .appendEncodedPath(Integer.toString(id))
+                .appendEncodedPath(REVIEWS_PATH)
+                .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DATABASE_API_KEY)
+                .build();
 
+        Log.v(LOG_TAG, builtUri.toString());
+
+        return new URL(builtUri.toString());
+    }
+
+    private void downloadAndInsertReviewsInDb(ContentProviderClient provider) {
+        HttpURLConnection urlConnection = null;
+
+        try {
+            URL url = constructReviewUrl();
+            urlConnection = performConnection(url);
+
+            Review[] reviews = getReviewsDataFromJson(getJsonString(urlConnection.getInputStream()));
+
+            for (Review review : reviews) {
+                review.insertReviewInDb(provider);
+            }
+        } catch (JSONException | RemoteException | IOException e) {
+            Log.e(LOG_TAG, "Error inserting review", e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
     }
 
     private static final String[] projection = new String[]{MovieEntry.COLUMN_MOVIE_ID};
