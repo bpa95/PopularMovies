@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
 
         mTwoPaneMode = null != findViewById(R.id.movie_detail_container);
         if (mTwoPaneMode && savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, new DetailFragment())
                     .commit();
         }
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(args);
 
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment)
                     .commit();
         } else {

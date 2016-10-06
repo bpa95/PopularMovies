@@ -111,6 +111,7 @@ public class Movie implements Parcelable {
     }
 
     private static HttpURLConnection performConnection(URL url) throws IOException {
+        Log.d(LOG_TAG, "preforming connection to " + url);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.connect();

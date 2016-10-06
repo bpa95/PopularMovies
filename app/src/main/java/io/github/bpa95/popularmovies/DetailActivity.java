@@ -21,8 +21,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.movie_detail_container, new DetailFragment())
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, new TrailerListFragment())
+//                    .add(R.id.movie_detail_container, new DetailFragment())
                     .commit();
         }
     }

@@ -45,6 +45,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         try {
+            Log.d(LOG_TAG, "Performing sync");
             Movie.transferMoviesFromServerToLocalDb(getContext(), provider);
         } catch (IOException | JSONException | RemoteException e) {
             Log.e(LOG_TAG, "Error ", e);

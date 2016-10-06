@@ -39,20 +39,20 @@ public class MovieProvider extends ContentProvider {
         sTrailersByMovieQueryBuilder = new SQLiteQueryBuilder();
 
         //This is an inner join which looks like
-        //movie INNER JOIN trailer ON trailer.id_movie = movie._id
+        //movie INNER JOIN trailer ON trailer.id_movie = movie.movie_id
         sTrailersByMovieQueryBuilder.setTables(
                 MovieEntry.TABLE_NAME + " INNER JOIN " +
                         TrailerEntry.TABLE_NAME +
                         " ON " + TrailerEntry.TABLE_NAME +
                         "." + TrailerEntry.COLUMN_ID_MOVIE +
                         " = " + MovieEntry.TABLE_NAME +
-                        "." + MovieEntry._ID);
+                        "." + MovieEntry.COLUMN_MOVIE_ID);
 
         sReviewsByMovieQueryBuilder = new SQLiteQueryBuilder();
 
         //This is an inner join which looks like
         //movie INNER JOIN review ON review.id_movie = movie._id
-        sTrailersByMovieQueryBuilder.setTables(
+        sReviewsByMovieQueryBuilder.setTables(
                 MovieEntry.TABLE_NAME + " INNER JOIN " +
                         ReviewEntry.TABLE_NAME +
                         " ON " + ReviewEntry.TABLE_NAME +
@@ -138,7 +138,8 @@ public class MovieProvider extends ContentProvider {
                 retCursor = sTrailersByMovieQueryBuilder.query(
                         mOpenHelper.getReadableDatabase(),
                         projection,
-                        MovieEntry.COLUMN_MOVIE_ID + " = ?",
+                        MovieEntry.TABLE_NAME + "." + MovieEntry._ID + " = ?",
+//                        MovieEntry.COLUMN_MOVIE_ID + " = ?",
                         new String[]{TrailerEntry.getMovieIdFromUri(uri)},
                         null,
                         null,

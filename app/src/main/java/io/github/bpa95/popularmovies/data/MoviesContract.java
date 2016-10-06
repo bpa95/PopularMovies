@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 /**
  * Defines table and column names for the movies database.
@@ -69,6 +70,9 @@ public class MoviesContract {
     }
 
     public static final class TrailerEntry implements BaseColumns {
+        private static final String LOG_TAG = TrailerEntry.class.getSimpleName();
+
+
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
 
@@ -96,11 +100,13 @@ public class MoviesContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static Uri buildTrailersByMovieIdUri(int movieId) {
-            return CONTENT_URI.buildUpon().appendPath(Integer.toString(movieId)).build();
+        public static Uri buildTrailersByMovieIdUri(long movieId) {
+            Log.d(LOG_TAG, CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build().toString());
+            return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
         }
 
         public static String getMovieIdFromUri(Uri uri) {
+            Log.d(LOG_TAG, uri.getPathSegments().get(1));
             return uri.getPathSegments().get(1);
         }
     }
