@@ -11,6 +11,8 @@ import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
 
+import io.github.bpa95.popularmovies.fragments.DetailFragment;
+import io.github.bpa95.popularmovies.fragments.MoviesGridFragment;
 import io.github.bpa95.popularmovies.sync.SyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {

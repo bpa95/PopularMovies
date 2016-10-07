@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.fragments;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -16,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import io.github.bpa95.popularmovies.MainActivity;
+import io.github.bpa95.popularmovies.R;
+import io.github.bpa95.popularmovies.adapters.MovieCursorAdapter;
 import io.github.bpa95.popularmovies.data.MoviesContract;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
@@ -107,8 +110,8 @@ public class MoviesGridFragment extends Fragment implements LoaderManager.Loader
 
     // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
     // must change.
-    static final int COLUMN_ID = 0;
-    static final int COLUMN_POSTER_PATH = 1;
+    public static final int COLUMN_ID = 0;
+    public static final int COLUMN_POSTER_PATH = 1;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.objects;
 
 import android.content.ContentProviderClient;
 import android.content.ContentValues;

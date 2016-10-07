@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import io.github.bpa95.popularmovies.R;
+import io.github.bpa95.popularmovies.fragments.TrailerListFragment;
 
 public class TrailersCursorAdapter extends CursorAdapter {
     private static final String LOG_TAG = TrailersCursorAdapter.class.getSimpleName();

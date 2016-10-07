@@ -19,7 +19,7 @@
 
         <fragment
             android:id="@+id/movies_grid_fragment"
-            android:name="io.github.bpa95.popularmovies.MoviesGridFragment"
+            android:name="io.github.bpa95.popularmovies.fragments.MoviesGridFragment"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

@@ -19,7 +19,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import io.github.bpa95.popularmovies.MainActivity;
-import io.github.bpa95.popularmovies.Movie;
+import io.github.bpa95.popularmovies.objects.Movie;
 import io.github.bpa95.popularmovies.R;
 
 /**

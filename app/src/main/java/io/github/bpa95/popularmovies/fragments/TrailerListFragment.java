@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.fragments;
 
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -11,10 +11,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.widget.CursorAdapter;
 
+import io.github.bpa95.popularmovies.adapters.TrailersCursorAdapter;
 import io.github.bpa95.popularmovies.data.MoviesContract;
 import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 
-import static io.github.bpa95.popularmovies.DetailFragment.DETAIL_URI;
+import static io.github.bpa95.popularmovies.fragments.DetailFragment.DETAIL_URI;
 
 public class TrailerListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -57,8 +58,8 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
 
     // These indices are tied to TRAILER_COLUMNS.  If TRAILER_COLUMNS changes, these
     // must change.
-    static final int COLUMN_ID = 0;
-    static final int COLUMN_NAME = 1;
+    public static final int COLUMN_ID = 0;
+    public static final int COLUMN_NAME = 1;
 
     private final String[] MOVIE_COLUMNS = new String[]{
             MoviesContract.MovieEntry.COLUMN_MOVIE_ID,

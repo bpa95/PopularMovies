@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,7 +11,10 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-class MovieCursorAdapter extends CursorAdapter {
+import io.github.bpa95.popularmovies.fragments.MoviesGridFragment;
+import io.github.bpa95.popularmovies.R;
+
+public class MovieCursorAdapter extends CursorAdapter {
     private static final String LOG_TAG = MovieCursorAdapter.class.getSimpleName();
 
     public MovieCursorAdapter(Context context) {

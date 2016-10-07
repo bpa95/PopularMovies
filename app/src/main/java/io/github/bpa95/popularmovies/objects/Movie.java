@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.objects;
 
 import android.content.ContentProviderClient;
 import android.content.ContentValues;
@@ -26,6 +26,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import io.github.bpa95.popularmovies.BuildConfig;
+import io.github.bpa95.popularmovies.R;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
 public class Movie implements Parcelable {

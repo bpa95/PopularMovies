@@ -1,4 +1,4 @@
-package io.github.bpa95.popularmovies;
+package io.github.bpa95.popularmovies.fragments;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 
+import io.github.bpa95.popularmovies.R;
 import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.MovieEntry;
 
@@ -31,7 +32,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int LOADER_ID = 0;
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
-    static final String DETAIL_URI = "detail_uri";
+    public static final String DETAIL_URI = "detail_uri";
 
     private Uri mUri;
 
