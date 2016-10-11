@@ -11,8 +11,8 @@ import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
 
-import io.github.bpa95.popularmovies.fragments.DetailFragment;
 import io.github.bpa95.popularmovies.fragments.MoviesGridFragment;
+import io.github.bpa95.popularmovies.fragments.TrailerListFragment;
 import io.github.bpa95.popularmovies.sync.SyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MoviesGridFragment.Callback {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
         mTwoPaneMode = null != findViewById(R.id.movie_detail_container);
         if (mTwoPaneMode && savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, new DetailFragment())
+                    .replace(R.id.movie_detail_container, new TrailerListFragment())
                     .commit();
         }
 
@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements MoviesGridFragmen
     public void onMovieSelected(Uri uri) {
         if (mTwoPaneMode) {
             Bundle args = new Bundle();
-            args.putParcelable(DetailFragment.DETAIL_URI, uri);
+            args.putParcelable(TrailerListFragment.DETAIL_URI, uri);
 
-            DetailFragment fragment = new DetailFragment();
+            TrailerListFragment fragment = new TrailerListFragment();
             fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()

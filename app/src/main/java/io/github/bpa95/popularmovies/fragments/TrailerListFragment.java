@@ -9,17 +9,30 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.Locale;
+
+import io.github.bpa95.popularmovies.R;
 import io.github.bpa95.popularmovies.adapters.TrailersCursorAdapter;
 import io.github.bpa95.popularmovies.data.MoviesContract;
 import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 
-import static io.github.bpa95.popularmovies.fragments.DetailFragment.DETAIL_URI;
+import static java.lang.String.format;
 
 public class TrailerListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri mUri;
+
+    public static final String DETAIL_URI = "detail_uri";
 
     private static final int DETAILS_LOADER_ID = 0;
     private static final int TRAILERS_LOADER_ID = 1;
@@ -27,8 +40,11 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
 
     private CursorAdapter mTrailerAdapter;
 
+    private View mHeaderView;
+
     public TrailerListFragment() {
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,15 +54,24 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mHeaderView = inflater.inflate(R.layout.movie_detail_item, null);
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        if (mHeaderView != null) {
+            getListView().addHeaderView(mHeaderView, null, false);
+        }
         mUri = getActivity().getIntent().getData();
         Bundle args = getArguments();
         if (mUri == null && args != null) {
             mUri = args.getParcelable(DETAIL_URI);
         }
         if (mUri != null) {
-            getLoaderManager().initLoader(DETAILS_LOADER_ID, null, this);
             getLoaderManager().initLoader(TRAILERS_LOADER_ID, null, this);
+            getLoaderManager().initLoader(DETAILS_LOADER_ID, null, this);
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -99,6 +124,12 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
         }
     }
 
+    private String mDetailTitle;
+    private String mReleaseDate;
+    private String mDetailRating;
+    private String mDetailOverview;
+    private String mPosterPath;
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
@@ -106,27 +137,29 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
                 mTrailerAdapter.swapCursor(data);
                 break;
             case DETAILS_LOADER_ID:
-//                View rootView = getView();
-//                if (rootView == null || data == null) {
-//                    return;
-//                }
-//                if (!data.moveToFirst()) {
-//                    Log.d(LOG_TAG, "Empty cursor");
-//                    return;
-//                }
-//                ((TextView) rootView.findViewById(R.id.detail_title)).setText(
-//                        data.getString(COLUMN_TITLE));
-//                ((TextView) rootView.findViewById(R.id.detail_release_date))
-//                        .setText(String.format(Locale.getDefault(), "Release date:%n%s",
-//                                data.getString(COLUMN_RELEASE_DATE)));
-//                ((TextView) rootView.findViewById(R.id.detail_rating))
-//                        .setText(String.format(Locale.getDefault(), "Rating:%n%1.1f/10",
-//                                data.getDouble(COLUMN_VOTE_AVERAGE)));
-//                ((TextView) rootView.findViewById(R.id.detail_overview)).setText(
-//                        data.getString(COLUMN_OVERVIEW));
-//
-//                ImageView imageView = (ImageView) rootView.findViewById(R.id.detail_poster);
-//                Picasso.with(getActivity()).load(data.getString(COLUMN_POSTER_PATH)).into(imageView);
+                View rootView = getListView();
+                if (rootView == null || data == null) {
+                    return;
+                }
+                if (!data.moveToFirst()) {
+                    Log.d(LOG_TAG, "Empty cursor");
+                    return;
+                }
+                mDetailTitle = data.getString(COLUMN_TITLE);
+                mReleaseDate = format(Locale.getDefault(), "Release date:%n%s",
+                        data.getString(COLUMN_RELEASE_DATE));
+                mDetailRating = String.format(Locale.getDefault(), "Rating:%n%1.1f/10",
+                        data.getDouble(COLUMN_VOTE_AVERAGE));
+                mDetailOverview = data.getString(COLUMN_OVERVIEW);
+                mPosterPath = data.getString(COLUMN_POSTER_PATH);
+                if (mHeaderView != null) {
+                    ((TextView) mHeaderView.findViewById(R.id.detail_title)).setText(mDetailTitle);
+                    ((TextView) mHeaderView.findViewById(R.id.detail_release_date)).setText(mReleaseDate);
+                    ((TextView) mHeaderView.findViewById(R.id.detail_overview)).setText(mDetailOverview);
+                    Picasso.with(getContext()).load(mPosterPath).into(
+                            (ImageView) mHeaderView.findViewById(R.id.detail_poster)
+                    );
+                }
                 break;
         }
     }

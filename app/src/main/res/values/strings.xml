@@ -20,6 +20,7 @@
     <string name="sync_account_type">bpa95.github.io</string>
     <string name="content_authority">io.github.bpa95.popularmovies</string>
     <string name="play_arrow">Play arrow</string>
+    <string name="add_to_favorite">Add to favorite</string>
 
     <string-array name="pref_sortOrder_entries">
         <item>@string/pref_sortOrder_popular_entry</item>
