@@ -1,6 +1,8 @@
 package io.github.bpa95.popularmovies.fragments;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +27,7 @@ import java.util.Locale;
 import io.github.bpa95.popularmovies.R;
 import io.github.bpa95.popularmovies.adapters.TrailersCursorAdapter;
 import io.github.bpa95.popularmovies.data.MoviesContract;
+import io.github.bpa95.popularmovies.data.MoviesContract.FavoriteEntry;
 import io.github.bpa95.popularmovies.data.MoviesContract.TrailerEntry;
 
 import static java.lang.String.format;
@@ -36,15 +40,17 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
 
     private static final int DETAILS_LOADER_ID = 0;
     private static final int TRAILERS_LOADER_ID = 1;
+    private static final int FAVORITE_LOADER_ID = 2;
     private static final String LOG_TAG = TrailerListFragment.class.getSimpleName();
 
     private CursorAdapter mTrailerAdapter;
 
     private View mHeaderView;
 
+    private ImageButton mButtonStar;
+
     public TrailerListFragment() {
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +78,7 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
         if (mUri != null) {
             getLoaderManager().initLoader(TRAILERS_LOADER_ID, null, this);
             getLoaderManager().initLoader(DETAILS_LOADER_ID, null, this);
+            getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -119,16 +126,49 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
             case TRAILERS_LOADER_ID:
                 Uri uri = TrailerEntry.buildTrailersByMovieIdUri(ContentUris.parseId(mUri));
                 return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
+            case FAVORITE_LOADER_ID:
+                uri = MoviesContract.FavoriteEntry.CONTENT_URI;
+                return new CursorLoader(getActivity(), uri, null,
+                        FavoriteEntry.COLUMN_FAVORITE_ID + " = ?",
+                        new String[]{Long.toString(ContentUris.parseId(mUri))},
+                        null);
             default:
                 return null;
         }
     }
 
-    private String mDetailTitle;
-    private String mReleaseDate;
-    private String mDetailRating;
-    private String mDetailOverview;
-    private String mPosterPath;
+    private boolean mStarState;
+    private boolean mStarLocalState;
+
+    private View.OnClickListener onStarClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v instanceof ImageButton) {
+                mStarLocalState = !mStarLocalState;
+                setStarImage(mStarLocalState);
+                ContentResolver cr = getActivity().getContentResolver();
+                if (mStarLocalState) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(FavoriteEntry.COLUMN_FAVORITE_ID, ContentUris.parseId(mUri));
+                    cr.insert(FavoriteEntry.CONTENT_URI, cv);
+                } else {
+                    cr.delete(FavoriteEntry.CONTENT_URI, FavoriteEntry.COLUMN_FAVORITE_ID + " = ?",
+                            new String[]{Long.toString(ContentUris.parseId(mUri))});
+                }
+            }
+        }
+    };
+
+    private void setStarImage(boolean isFavorite) {
+        if (mButtonStar == null) {
+            return;
+        }
+        if (isFavorite) {
+            mButtonStar.setImageResource(R.drawable.ic_star_black_48dp);
+        } else {
+            mButtonStar.setImageResource(R.drawable.ic_star_border_black_48dp);
+        }
+    }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
@@ -145,13 +185,13 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
                     Log.d(LOG_TAG, "Empty cursor");
                     return;
                 }
-                mDetailTitle = data.getString(COLUMN_TITLE);
-                mReleaseDate = format(Locale.getDefault(), "Release date:%n%s",
+                String mDetailTitle = data.getString(COLUMN_TITLE);
+                String mReleaseDate = format(Locale.getDefault(), "Release date:%n%s",
                         data.getString(COLUMN_RELEASE_DATE));
-                mDetailRating = String.format(Locale.getDefault(), "Rating:%n%1.1f/10",
+                String mDetailRating = String.format(Locale.getDefault(), "Rating:%n%1.1f/10",
                         data.getDouble(COLUMN_VOTE_AVERAGE));
-                mDetailOverview = data.getString(COLUMN_OVERVIEW);
-                mPosterPath = data.getString(COLUMN_POSTER_PATH);
+                String mDetailOverview = data.getString(COLUMN_OVERVIEW);
+                String mPosterPath = data.getString(COLUMN_POSTER_PATH);
                 if (mHeaderView != null) {
                     ((TextView) mHeaderView.findViewById(R.id.detail_title)).setText(mDetailTitle);
                     ((TextView) mHeaderView.findViewById(R.id.detail_release_date)).setText(mReleaseDate);
@@ -160,7 +200,14 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
                     Picasso.with(getContext()).load(mPosterPath).into(
                             (ImageView) mHeaderView.findViewById(R.id.detail_poster)
                     );
+                    mButtonStar = (ImageButton) mHeaderView.findViewById(R.id.mark_as_favorite_button);
+                    mButtonStar.setOnClickListener(onStarClickListener);
+                    setStarImage(mStarLocalState);
                 }
+                break;
+            case FAVORITE_LOADER_ID:
+                mStarState = mStarLocalState = data.moveToFirst();
+                setStarImage(mStarState);
                 break;
         }
     }
