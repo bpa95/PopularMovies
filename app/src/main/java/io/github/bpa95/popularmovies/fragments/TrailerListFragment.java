@@ -155,6 +155,7 @@ public class TrailerListFragment extends ListFragment implements LoaderManager.L
                 if (mHeaderView != null) {
                     ((TextView) mHeaderView.findViewById(R.id.detail_title)).setText(mDetailTitle);
                     ((TextView) mHeaderView.findViewById(R.id.detail_release_date)).setText(mReleaseDate);
+                    ((TextView) mHeaderView.findViewById(R.id.detail_rating)).setText(mDetailRating);
                     ((TextView) mHeaderView.findViewById(R.id.detail_overview)).setText(mDetailOverview);
                     Picasso.with(getContext()).load(mPosterPath).into(
                             (ImageView) mHeaderView.findViewById(R.id.detail_poster)
